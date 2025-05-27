@@ -159,11 +159,11 @@ public class Cafe {
         this.dueño = dueño;
     }
 
-    public List<Reseña> getReseñas() {
+    public List<Resena> getReseñas() {
         return reseñas;
     }
 
-    public void setReseñas(List<Reseña> reseñas) {
+    public void setReseñas(List<Resena> reseñas) {
         this.reseñas = reseñas;
     }
 }
