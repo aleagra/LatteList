@@ -18,37 +18,22 @@ public class Cafe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre es obligatorio.")
-    @Size(min = 3, max = 20, message = "El nombre debe contener entre 3 a 20 caracteres")
+    @Column(nullable = false)
     private String nombre;
 
-    @NotBlank(message = "La direccion es obligatoria.")
-    @Size(min = 3, max = 30, message = "La direccion debe contener entre 3 a 30 caracteres")
-    @Pattern(
-            regexp = "^[A-ZÁÉÍÓÚÑa-záéíóúñ]+\\s\\d+$",
-            message = "La dirección debe tener el formato: Calle seguido de la altura numérica, por ejemplo 'Lavalle 1234'."
-    )
+    @Column(nullable = false)
     private String direccion;
 
-    @NotNull(message = "El promedio es obligatorio")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CostoPromedio costoPromedio;
 
-
-    @Pattern(
-            regexp = "^(https?://).+\\.(png|jpg|jpeg|svg|webp)$",
-            message = "El logo debe ser una URL válida a una imagen (.png, .jpg, etc.)"
-    )
     private String logo;
 
-    @Pattern(
-            regexp = "^(https?://)?(www\\.)?instagram\\.com/[A-Za-z0-9_.]+/?$",
-            message = "Debe ser un enlace válido de Instagram."
-    )
     private String instagramURL;
 
-    @Size(min = 1, message = "Debe tener al menos una etiqueta.")
-    //Esto asi no se guarda en la base de datos
-    private Set<Etiquetas> etiquetas = new HashSet<>();
+    //ESTO NO SE GUARDA EN LA BDD
+    private Set<Etiquetas> etiquetas = new HashSet<Etiquetas>();
 
 
     @ManyToOne
@@ -59,48 +44,17 @@ public class Cafe {
     private List<Resena> reseñas = new ArrayList<>();
 
 
-    public Cafe(Long id, String nombre, String direccion, CostoPromedio costoPromedio, String logo, String instagramURL, Usuario dueño) {
-        this.id = id;
-        this.nombre = nombre;
-        this.direccion = direccion;
-        this.costoPromedio = costoPromedio;
-        this.logo = logo;
-        this.instagramURL = instagramURL;
-        this.dueño = dueño;
-    }
 
 
-
+    //
     public Cafe() {
     }
 
-    @Override
-    public String toString() {
-        return
-                "| Id: " +id  + "\n" +
-                        "| Nombre del cafe: " + nombre + "\n" +
-                        "| Direcccion: " + direccion + "\n" +
-                        "| Costo promedio: " + costoPromedio  + "\n" +
-                        //         "| Dueño : " + dueño.getNombre +" "+dueño.getApellido+ "\n" +
-                        "=========================================\n";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Cafe cafe = (Cafe) o;
-        return Objects.equals(id, cafe.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 
     public Long getId() {
         return id;
     }
+
 
 
     public String getNombre() {
@@ -108,7 +62,7 @@ public class Cafe {
     }
 
     public void setNombre(String nombre) {
-        this.nombre = nombre.trim() ;
+        this.nombre = nombre;
     }
 
     public String getDireccion() {
@@ -116,7 +70,7 @@ public class Cafe {
     }
 
     public void setDireccion(String direccion) {
-        this.direccion =  direccion.trim();
+        this.direccion = direccion;
     }
 
     public CostoPromedio getCostoPromedio() {

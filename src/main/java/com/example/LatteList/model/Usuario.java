@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,74 +16,94 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre del usuario no puede ser nulo")
-    @Size(min = 6, max = 20,message = "El nombre debe contener entre 6 y 20 caracteres")
     @Column(nullable = false)
     private String nombre;
 
-    @NotBlank(message = "El apellido del usuario no puede ser nulo")
-    @Size(min = 6, max = 20,message = "El apellido debe contener entre 6 y 20 caracteres")
     @Column(nullable = false)
     private String apellido;
 
-    @Email(message = "El email debe tener un formato válido")
-    @NotBlank(message = "El email es obligatorio")
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, max = 20,message = "La contraseña debe contener entre 6 y 20 caracteres")
+    @Column(nullable = false)
     private String contrasena;
 
+    @Column(nullable = false)
+    private TipoDeUsuario tipoDeUsuario;
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cafe> listasDeCafes;
+    private List<List<Cafe>> listasDeCafes = new ArrayList<List<Cafe>>();
 
-    public List<Cafe> getListasDeCafes() {
-        return listasDeCafes;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resena> resenas = new ArrayList<Resena>();
+
+
+
+    //
+    public Usuario() {
     }
 
-    public void setListasDeCafes(List<Cafe> listasDeCafes) {
-        this.listasDeCafes = listasDeCafes;
-    }
 
-    public @NotBlank(message = "La contraseña es obligatoria") @Size(min = 6, max = 20, message = "La contraseña debe contener entre 6 y 20 caracteres") String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(@NotBlank(message = "La contraseña es obligatoria") @Size(min = 6, max = 20, message = "La contraseña debe contener entre 6 y 20 caracteres") String contrasena) {
-        this.contrasena = contrasena;
-    }
-
-    public @Email(message = "El email debe tener un formato válido") @NotBlank(message = "El email es obligatorio") String getEmail() {
-        return email;
-    }
-
-    public void setEmail(@Email(message = "El email debe tener un formato válido") @NotBlank(message = "El email es obligatorio") String email) {
-        this.email = email;
-    }
-
-    public @NotBlank(message = "El apellido del usuario no puede ser nulo") @Size(min = 6, max = 20, message = "El apellido debe contener entre 6 y 20 caracteres") String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(@NotBlank(message = "El apellido del usuario no puede ser nulo") @Size(min = 6, max = 20, message = "El apellido debe contener entre 6 y 20 caracteres") String apellido) {
-        this.apellido = apellido;
-    }
-
-    public @NotBlank(message = "El nombre del usuario no puede ser nulo") @Size(min = 6, max = 20, message = "El nombre debe contener entre 6 y 20 caracteres") String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(@NotBlank(message = "El nombre del usuario no puede ser nulo") @Size(min = 6, max = 20, message = "El nombre debe contener entre 6 y 20 caracteres") String nombre) {
-        this.nombre = nombre;
-    }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
+
+    public TipoDeUsuario getTipoDeUsuario() {
+        return tipoDeUsuario;
+    }
+
+    public void setTipoDeUsuario(TipoDeUsuario tipoDeUsuario) {
+        this.tipoDeUsuario = tipoDeUsuario;
+    }
+
+    public List<List<Cafe>> getListasDeCafes() {
+        return listasDeCafes;
+    }
+
+    public void setListasDeCafes(List<List<Cafe>> listasDeCafes) {
+        this.listasDeCafes = listasDeCafes;
+    }
+
+    public List<Resena> getResenas() {
+        return resenas;
+    }
+
+    public void setResenas(List<Resena> resenas) {
+        this.resenas = resenas;
     }
 
     @Override
@@ -93,7 +114,9 @@ public class Usuario {
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
                 ", contrasena='" + contrasena + '\'' +
-                ", listasDeCafes=" + listasDeCafes +
+                ", tipoDeUsuario=" + tipoDeUsuario +
+            //    ", listasDeCafes=" + listasDeCafes +
+            //    ", resenas=" + resenas +
                 '}';
     }
 }
