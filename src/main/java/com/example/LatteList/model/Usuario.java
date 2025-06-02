@@ -33,23 +33,14 @@ public class Usuario {
     private TipoDeUsuario tipoDeUsuario;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<List<Cafe>> listasDeCafes = new ArrayList<List<Cafe>>();
+    private ArrayList<ListaDeCafe> listasDeCafes = new ArrayList<ListaDeCafe>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resena> resenas = new ArrayList<Resena>();
 
-
-
-    //
-    public Usuario() {
-    }
-
-
-
     public Long getId() {
         return id;
     }
-
 
     public String getNombre() {
         return nombre;
@@ -91,11 +82,11 @@ public class Usuario {
         this.tipoDeUsuario = tipoDeUsuario;
     }
 
-    public List<List<Cafe>> getListasDeCafes() {
+    public ArrayList<ListaDeCafe> getListasDeCafes() {
         return listasDeCafes;
     }
 
-    public void setListasDeCafes(List<List<Cafe>> listasDeCafes) {
+    public void setListasDeCafes(ArrayList<ListaDeCafe> listasDeCafes) {
         this.listasDeCafes = listasDeCafes;
     }
 
@@ -116,8 +107,8 @@ public class Usuario {
                 ", email='" + email + '\'' +
                 ", contrasena='" + contrasena + '\'' +
                 ", tipoDeUsuario=" + tipoDeUsuario +
-            //    ", listasDeCafes=" + listasDeCafes +
-            //    ", resenas=" + resenas +
+                ", listasDeCafes=" + listasDeCafes +
+                ", resenas=" + resenas +
                 '}';
     }
 }
