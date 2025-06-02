@@ -1,5 +1,11 @@
 package com.example.LatteList.DTOs.UsuarioDTOs;
 
+import com.example.LatteList.Enums.TipoDeUsuario;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class UsuarioRequestDTO {
 
     @NotBlank(message = "El nombre del usuario no puede ser nulo")

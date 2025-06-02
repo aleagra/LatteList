@@ -1,5 +1,12 @@
 package com.example.LatteList.DTOs.CafeDTOs;
 
+import com.example.LatteList.Enums.CostoPromedio;
+import com.example.LatteList.Enums.Etiquetas;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import java.util.HashSet;
 import java.util.Set;
 

@@ -1,5 +1,7 @@
 package com.example.LatteList.DTOs.ResenaDTOs;
 
+import jakarta.validation.constraints.*;
+
 public class ResenaRequestDTO {
 
   @NotNull(message = "El ID del usuario es obligatorio")
