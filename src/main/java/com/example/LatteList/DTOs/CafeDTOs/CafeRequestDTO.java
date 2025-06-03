@@ -51,7 +51,6 @@ public class CafeRequestDTO {
 }
 
 
-public record CafeListDTO(Long id, String nombre, String direccion, CostoPromedio costoPromedio){}
 
-public record CafeDetailDTO (Long id, String nombre, String direccion, CostoPromedio costoPromedio,
-                             String logo, String urlInstagram, List<Etiquetas> etiquetas, String nombreDuenio){}
+
+
