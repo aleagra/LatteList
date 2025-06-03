@@ -41,7 +41,7 @@ public class ResenaDetailDTO {
 
         // Getters y setters omitidos por brevedad
 
-        // Método para mapear de entidad a DTO
+        // de resena a detail !!!!!!!!!!!!!! 
         public static ResenaDetailDTO fromEntity(Resena resena) {
             return new ResenaDetailDTO(
                     resena.getId(),
