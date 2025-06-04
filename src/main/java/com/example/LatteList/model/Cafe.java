@@ -32,7 +32,10 @@ public class Cafe {
 
     private String instagramURL;
 
-    //ESTO NO SE GUARDA EN LA BDD
+    @ElementCollection(targetClass = Etiquetas.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "cafe_etiquetas", joinColumns = @JoinColumn(name = "cafe_id"))
+    @Column(name = "etiqueta")
     private Set<Etiquetas> etiquetas = new HashSet<Etiquetas>();
 
 
