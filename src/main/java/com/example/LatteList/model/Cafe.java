@@ -28,8 +28,10 @@ public class Cafe {
     @Column(nullable = false)
     private CostoPromedio costoPromedio;
 
+    @Column(nullable = true)
     private String logo;
 
+    @Column(nullable = true)
     private String instagramURL;
 
     @ElementCollection(targetClass = Etiquetas.class)
