@@ -6,4 +6,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
+
+    //Busca por coincidencia parcial ignarando mayus y minus
+  List<Cafe> findByNombreContainingIgnoreCase(String nombre);
+
+  List<Cafe> findByEtiquetasContaining(Etiquetas etiqueta);
+
+  //busqa por direccion de forma parcial
+  List<Cafe> findByDireccionContainingIgnoreCase(String direccion);
+
+  List<Cafe> findByCostoPromedio(CostoPromedio costo);
 }
