@@ -44,7 +44,7 @@ public class CafeService {
 
     public List<CafeListDTO> listarCafes(){
         return repo.findAll().stream().
-                map(c -> new CafeListDTO(c.getId(), c.getNombre(), c.getDireccion(), c.getCostoPromedio())).
+                map(this::toListDTO)
                 toList();
     }
 
@@ -52,8 +52,8 @@ public class CafeService {
     public CafeDetailDTO buscarPorId(Long id){
         Cafe cafe = repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
-        return new CafeDetailDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio(),
-                cafe.getLogo(), cafe.getInstagramURL(), cafe.getEtiquetas(), cafe.getDueño().getNombre());
+     
+        return toDetailDTO(cafe);
     }
 
 
@@ -69,7 +69,7 @@ public class CafeService {
         Cafe existente = repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
        /* Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
-                orElseThrow(() -> DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));*/
+                orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));*/
 
         existente.setInstagramURL(datosNuevos.getInstagramURL());
         existente.setDireccion(datosNuevos.getDireccion());
@@ -84,6 +84,70 @@ public class CafeService {
         return toDetailDTO(existente);
     }
 
+    public List<CafeListDTO> buscarPorNombre(String nombre) {
+    String textoLimpio = nombre.trim();
+    List<Cafe> cafes = repo.findByNombreContainingIgnoreCase(textoLimpio);
+
+     if (cafes.isEmpty()) {
+       System.out.println("No se encontraron cafés con el nombre: " + nombre);
+    }
+    return cafes.stream()
+            .map(this::toListDTO)
+            .toList();
+}
+
+    public List<CafeListDTO> buscarPorDireccion(String direccion){
+        String textoLimpio = direccion.trim();
+        List<Cafe> cafes = repo.findByDireccionContainingIgnoreCase(textoLimpio);
+    
+        if (cafes.isEmpty()) {
+       System.out.println("No se encontraron cafés con la direccion: " + direccion);
+        }
+           return cafes.stream()
+            .map(this::toListDTO)
+            .toList();
+    }
+
+    public List<CafeListDTO> filtrarPorEtiqueta(String etiquetaStr) {
+    Etiquetas etiqueta = validarEtiqueta(etiquetaStr)
+                         .orElseThrow(() -> new BadRequestException("Etiqueta invalidad: " + etiquetaStr));
+
+    List<Cafe> cafes = repo.findByEtiquetasContaining(etiqueta);
+
+    return cafes.stream()
+            .map(this::toListDTO)
+            .toList();
+}
+  
+public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
+    CostoPromedio costo = validarCostoPromedio(costoStr)
+            .orElseThrow(() -> new BadRequestException("Costo promedio invalido: " + costoStr));
+
+    List<Cafe> cafes = repo.findByCostoPromedio(costo);
+
+    if (cafes.isEmpty()) {
+        System.out.println("No se encontraron cafes con ese costo promedio: " + costo);
+    }
+
+    return cafes.stream()
+                .map(this::toListDTO)
+                .toList();
+}
+
+    //con esto me evito usar el try-catch
+    private Optional<CostoPromedio> validarCostoPromedio(String costo) {
+    return Arrays.stream(CostoPromedio.values())
+                 .filter(c -> c.name().equalsIgnoreCase(costo.trim()))
+                 .findFirst();
+}
+
+public Optional<Etiquetas> validarEtiqueta(String etiqueta){
+    return Arrays.stream(Etiquetas.values())
+                .filter(c -> c.name().equalsIgnoreCase(etiqueta.trim()))
+                 .findFirst();
+}
+    
+
 
     private CafeDetailDTO toDetailDTO(Cafe cafe) {
         return new CafeDetailDTO(
@@ -97,4 +161,11 @@ public class CafeService {
                 cafe.getDueño().getNombre()
         );
     }
+
+    
+    private CafeListDTO toListDTO(Cafe cafe) {
+    return new CafeListDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio());
+    }
+
+    
 }
