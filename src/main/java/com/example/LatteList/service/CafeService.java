@@ -4,14 +4,22 @@ import com.example.LatteList.DTOs.CafeDTOs.CafeDetailDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeListDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
 //import com.example.LatteList.exception.CafeNotFoundException;
+import com.example.LatteList.Enums.CostoPromedio;
+import com.example.LatteList.Enums.Etiquetas;
+import com.example.LatteList.exception.CafeNotFoundException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.repository.UserRepository;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class CafeService {
@@ -41,12 +49,6 @@ public class CafeService {
     return toDetailDTO(cafe);
     }
 
-
-    public List<CafeListDTO> listarCafes(){
-        return repo.findAll().stream().
-                map(this::toListDTO)
-                toList();
-    }
 
     //La excepcion esta en la rama de ceci
     public CafeDetailDTO buscarPorId(Long id){
@@ -110,7 +112,7 @@ public class CafeService {
 
     public List<CafeListDTO> filtrarPorEtiqueta(String etiquetaStr) {
     Etiquetas etiqueta = validarEtiqueta(etiquetaStr)
-                         .orElseThrow(() -> new BadRequestException("Etiqueta invalidad: " + etiquetaStr));
+                         .orElseThrow(() -> new CafeNotFoundException("Etiqueta invalidad: " + etiquetaStr));
 
     List<Cafe> cafes = repo.findByEtiquetasContaining(etiqueta);
 
@@ -120,8 +122,8 @@ public class CafeService {
 }
   
 public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
-    CostoPromedio costo = validarCostoPromedio(costoStr)
-            .orElseThrow(() -> new BadRequestException("Costo promedio invalido: " + costoStr));
+    CostoPromedio costo = validarCostoPromedio(costoStr).
+            orElseThrow(() -> new CafeNotFoundException("Costo promedio invalido: " + costoStr));
 
     List<Cafe> cafes = repo.findByCostoPromedio(costo);
 
@@ -134,19 +136,27 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
                 .toList();
 }
 
-    //con esto me evito usar el try-catch
-    private Optional<CostoPromedio> validarCostoPromedio(String costo) {
-    return Arrays.stream(CostoPromedio.values())
-                 .filter(c -> c.name().equalsIgnoreCase(costo.trim()))
-                 .findFirst();
-}
+    public List<CafeListDTO> listarCafes(){
+        return repo.findAll().stream().
+                map(this::toListDTO).
+        toList();
+    }
 
-public Optional<Etiquetas> validarEtiqueta(String etiqueta){
+
+private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     return Arrays.stream(Etiquetas.values())
                 .filter(c -> c.name().equalsIgnoreCase(etiqueta.trim()))
                  .findFirst();
 }
-    
+
+
+    //con esto me evito usar el try-catch
+    private Optional<CostoPromedio> validarCostoPromedio(String costo) {
+        return Arrays.stream(CostoPromedio.values())
+                .filter(c -> c.name().equalsIgnoreCase(costo.trim()))
+                .findFirst();
+    }
+
 
 
     private CafeDetailDTO toDetailDTO(Cafe cafe) {
@@ -162,10 +172,12 @@ public Optional<Etiquetas> validarEtiqueta(String etiqueta){
         );
     }
 
-    
+
     private CafeListDTO toListDTO(Cafe cafe) {
-    return new CafeListDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio());
+        return new CafeListDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio());
     }
 
-    
+
+
+
 }
