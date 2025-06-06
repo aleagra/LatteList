@@ -86,7 +86,7 @@ public class CafeService {
         return toDetailDTO(existente);
     }
 
-    public List<CafeListDTO> buscarPorNombre(String nombre) {
+    public List<CafeListDTO> filtrarPorNombre(String nombre) {
     String textoLimpio = nombre.trim();
     List<Cafe> cafes = repo.findByNombreContainingIgnoreCase(textoLimpio);
 
@@ -98,8 +98,8 @@ public class CafeService {
             .toList();
 }
 
-    public List<CafeListDTO> buscarPorDireccion(String direccion){
-        String textoLimpio = direccion.trim();
+    public List<CafeListDTO> filtrarPorDireccionAprox(String direccionParcial){
+        String textoLimpio = direccionParcial.trim();
         List<Cafe> cafes = repo.findByDireccionContainingIgnoreCase(textoLimpio);
     
         if (cafes.isEmpty()) {
@@ -142,6 +142,12 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
         toList();
     }
 
+    public CafeDetailDTO obtenerCafeAleatorio() {
+        Cafe cafe = repo.obtenerCafeAleatorio().
+                orElseThrow(() -> new CafeNotFoundException("No hay cafes en la base de datos."));
+        return toDetailDTO(cafe);
+    }
+
 
 private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     return Arrays.stream(Etiquetas.values())
@@ -171,6 +177,7 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
                 cafe.getDueño().getNombre()
         );
     }
+
 
 
     private CafeListDTO toListDTO(Cafe cafe) {

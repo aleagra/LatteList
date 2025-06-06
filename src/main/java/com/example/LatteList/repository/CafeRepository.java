@@ -4,9 +4,11 @@ import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.model.Cafe;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
@@ -20,4 +22,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
   List<Cafe> findByDireccionContainingIgnoreCase(String direccion);
 
   List<Cafe> findByCostoPromedio(CostoPromedio costo);
+
+  @Query(value = "SELECT * FROM cafe ORDER BY RAND() LIMIT 1", nativeQuery = true)
+  Optional<Cafe> obtenerCafeAleatorio();
 }
