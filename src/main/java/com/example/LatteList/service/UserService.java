@@ -6,19 +6,37 @@ import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
 
     public UsuarioDetailDTO crearUsuario(UsuarioRequestDTO r) {
+        if (userRepository.findByEmail(r.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("El email ya está registrado");
+        }
+
         Usuario u = new Usuario();
         u.setNombre(r.getNombre());
+        u.setApellido(r.getApellido());
         u.setEmail(r.getEmail());
-        u.setContrasena(r.getContrasena());
+        u.setContrasena(passwordEncoder.encode(r.getContrasena()));
+
         Usuario guardado = userRepository.save(u);
 
         return new UsuarioDetailDTO(
@@ -65,5 +83,13 @@ public class UserService {
                 u.getEmail(), u.getTipoDeUsuario()
         );
     }
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: "));
+    }
+
 }
 
