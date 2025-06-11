@@ -38,7 +38,7 @@ public class Usuario implements UserDetails {
     private TipoDeUsuario tipoDeUsuario;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ArrayList<ListaDeCafe> listasDeCafes = new ArrayList<ListaDeCafe>();
+    private List<ListaDeCafe> listasDeCafes = new ArrayList<ListaDeCafe>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resena> resenas = new ArrayList<Resena>();
@@ -87,11 +87,11 @@ public class Usuario implements UserDetails {
         this.tipoDeUsuario = tipoDeUsuario;
     }
 
-    public ArrayList<ListaDeCafe> getListasDeCafes() {
+    public List<ListaDeCafe> getListasDeCafes() {
         return listasDeCafes;
     }
 
-    public void setListasDeCafes(ArrayList<ListaDeCafe> listasDeCafes) {
+    public void setListasDeCafes(List<ListaDeCafe> listasDeCafes) {
         this.listasDeCafes = listasDeCafes;
     }
 

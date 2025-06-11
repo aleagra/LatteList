@@ -1,5 +1,4 @@
 package com.example.LatteList.service;
-
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
@@ -12,9 +11,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Service
 public class UserService implements UserDetailsService {
     @Autowired
     private final UserRepository userRepository;
@@ -36,6 +36,7 @@ public class UserService implements UserDetailsService {
         u.setApellido(r.getApellido());
         u.setEmail(r.getEmail());
         u.setContrasena(passwordEncoder.encode(r.getContrasena()));
+        u.setTipoDeUsuario(r.getTipoDeUsuario());
 
         Usuario guardado = userRepository.save(u);
 
@@ -89,6 +90,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: "));
+
     }
 
 }

@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 import java.util.*;
 
 @Entity
-@Table(name = "cafe")
+@Table(name = "cafes")
 public class Cafe {
 
     @Id

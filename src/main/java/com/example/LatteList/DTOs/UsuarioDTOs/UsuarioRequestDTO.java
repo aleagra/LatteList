@@ -9,11 +9,11 @@ import jakarta.validation.constraints.Size;
 public class UsuarioRequestDTO {
 
     @NotBlank(message = "El nombre del usuario no puede ser nulo")
-    @Size(min = 6, max = 20,message = "El nombre debe contener entre 6 y 20 caracteres")
+    @Size(min = 3, max = 20,message = "El nombre debe contener entre 6 y 20 caracteres")
     private String nombre;
 
     @NotBlank(message = "El apellido del usuario no puede ser nulo")
-    @Size(min = 6, max = 20,message = "El apellido debe contener entre 6 y 20 caracteres")
+    @Size(min = 3, max = 20,message = "El apellido debe contener entre 6 y 20 caracteres")
     private String apellido;
 
     @Email(message = "El email debe tener un formato válido")
