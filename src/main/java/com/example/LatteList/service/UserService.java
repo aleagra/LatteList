@@ -37,7 +37,7 @@ public class UserService implements UserDetailsService {
         u.setNombre(r.getNombre());
         u.setApellido(r.getApellido());
         u.setEmail(r.getEmail());
-        u.setContrasena(passwordEncoder.encode(r.getContrasena()));
+        u.setPassword(passwordEncoder.encode(r.getPassword()));
         u.setTipoDeUsuario(r.getTipoDeUsuario());
 
         Usuario guardado = userRepository.save(u);
@@ -63,7 +63,7 @@ public class UserService implements UserDetailsService {
         u.setNombre(req.getNombre());
         u.setApellido(req.getApellido());
         u.setEmail(req.getEmail());
-        u.setContrasena(req.getContrasena());
+        u.setPassword(passwordEncoder.encode(req.getPassword()));
         Usuario actualizado = userRepository.save(u);
         return new UsuarioDetailDTO(
                 actualizado.getId(), actualizado.getNombre(), actualizado.getApellido(),

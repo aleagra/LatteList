@@ -22,7 +22,7 @@ public class UsuarioRequestDTO {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, max = 20,message = "La contraseña debe contener entre 6 y 20 caracteres")
-    private String contrasena;
+    private String password;
 
     @NotNull(message = "El tipo de usuario es obligatorio")
     private TipoDeUsuario tipoDeUsuario;
@@ -54,12 +54,12 @@ public class UsuarioRequestDTO {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
-    }
+   public String getPassword(){
+        return password;
+   }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setPassword(@NotBlank(message = "La contraseña es obligatoria") @Size(min = 6, max = 20, message = "La contraseña debe contener entre 6 y 20 caracteres") String password) {
+        this.password = password;
     }
 
     public TipoDeUsuario getTipoDeUsuario() {

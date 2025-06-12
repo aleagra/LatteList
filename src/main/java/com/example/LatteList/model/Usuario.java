@@ -32,7 +32,7 @@ public class Usuario implements UserDetails {
     private String email;
 
     @Column(nullable = false)
-    private String contrasena;
+    private String password;
 
     @Column(nullable = false)
     private TipoDeUsuario tipoDeUsuario;
@@ -71,13 +71,7 @@ public class Usuario implements UserDetails {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
+    public void setPassword(String password) {this.password = password;}
 
     public TipoDeUsuario getTipoDeUsuario() {
         return tipoDeUsuario;
@@ -110,7 +104,7 @@ public class Usuario implements UserDetails {
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
-                ", contrasena='" + contrasena + '\'' +
+                ", contrasena='" + password + '\'' +
                 ", tipoDeUsuario=" + tipoDeUsuario +
                 ", listasDeCafes=" + listasDeCafes +
                 ", resenas=" + resenas +
@@ -144,7 +138,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getPassword() {
-        return contrasena;
+        return password;
     }
 
     @Override
