@@ -42,12 +42,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public UsuarioDetailDTO modificar(
-            @PathVariable Long id,
             @Valid @RequestBody UsuarioRequestDTO req
     ) {
-        return userService.modificarUsuario(id, req);
+        return userService.modificarMiUsuario(req);
     }
 
     @DeleteMapping("/{id}")
