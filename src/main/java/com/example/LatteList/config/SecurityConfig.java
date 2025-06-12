@@ -1,7 +1,9 @@
 package com.example.LatteList.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,17 +24,24 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/reseñas/**").permitAll()
-                        .requestMatchers("/cafes/**").permitAll()
-                        .requestMatchers("/listas/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/usuarios/**").permitAll()
+                        .requestMatchers("/reseñas/**", "/cafes/**", "/listas/**", "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // 🔴 Elimina formLogin para evitar el formulario HTML
+                // .formLogin(Customizer.withDefaults())
+
+                // ✅ Reemplazalo con esto para lanzar 401 en vez de HTML
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
+                        })
                 )
-                .httpBasic(Customizer.withDefaults());
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                );
+
 
         return http.build();
     }
