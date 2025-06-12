@@ -78,12 +78,21 @@ public class UserService implements UserDetailsService {
         );
     }
 
-
     public void eliminarUsuario(Long id) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("No existe usuario con ID " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public void eliminarCuenta() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Usuario usuario = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        userRepository.delete(usuario);
     }
 
     public UsuarioDetailDTO buscarPorId(Long id) {

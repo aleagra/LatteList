@@ -1,5 +1,4 @@
 package com.example.LatteList.controller;
-
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -49,9 +47,16 @@ public class UserController {
         return userService.modificarMiUsuario(req);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Long id) {
         userService.eliminarUsuario(id);
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminarCuenta() {
+        userService.eliminarCuenta();
     }
 }
