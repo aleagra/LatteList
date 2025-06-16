@@ -57,4 +57,12 @@ public class ListaDeCafe {
     public void setCafes(List<Cafe> cafes) {
         this.cafes = cafes;
     }
+
+    public void cargarUnCafe(Cafe cafe) {
+        if (cafe != null && !cafes.contains(cafe)) {
+            cafes.add(cafe);
+        }
+    }
+
+
 }

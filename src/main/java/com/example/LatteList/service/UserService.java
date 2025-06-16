@@ -1,8 +1,11 @@
 package com.example.LatteList.service;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
+import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListaDeCafeDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
 import com.example.LatteList.Enums.TipoDeUsuario;
+import com.example.LatteList.model.Cafe;
+import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -163,6 +166,5 @@ public class UserService implements UserDetailsService {
                 authorities
         );
     }
-
 }
 
