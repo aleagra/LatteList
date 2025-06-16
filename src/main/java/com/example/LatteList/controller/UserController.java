@@ -2,6 +2,8 @@ package com.example.LatteList.controller;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
+import com.example.LatteList.Enums.TipoDeUsuario;
+import com.example.LatteList.model.Usuario;
 import com.example.LatteList.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,27 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Long id) {
         userService.eliminarUsuario(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/rol/{tipo}")
+    public ResponseEntity<List<UsuarioListDTO>> findByTipoDeUsuario(
+            @PathVariable TipoDeUsuario tipo
+    ) {
+        List<UsuarioListDTO> usuarios = userService.findByTipoUsuario(tipo);
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<List<UsuarioListDTO>> findByNombre(@PathVariable String nombre) {
+        List<UsuarioListDTO> usuarios = userService.findByNombre(nombre);
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @GetMapping("/apellido/{apellido}")
+    public ResponseEntity<List<UsuarioListDTO>> findByApellido(@PathVariable String apellido) {
+        List<UsuarioListDTO> usuarios = userService.findByApellido(apellido);
+        return ResponseEntity.ok(usuarios);
     }
 
     @DeleteMapping("/me")

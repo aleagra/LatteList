@@ -2,6 +2,7 @@ package com.example.LatteList.service;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
+import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -97,12 +99,54 @@ public class UserService implements UserDetailsService {
 
     public UsuarioDetailDTO buscarPorId(Long id) {
         Usuario u = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Visita no encontrada con ID " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID " + id));
         return new UsuarioDetailDTO(
                 u.getId(), u.getNombre(), u.getApellido(),
                 u.getEmail(), u.getTipoDeUsuario()
         );
     }
+
+    public List<UsuarioListDTO> findByTipoUsuario(TipoDeUsuario tipoDeUsuario) {
+        List<Usuario> usuarios = userRepository.findByTipoDeUsuario(tipoDeUsuario);
+
+        return usuarios.stream()
+                .map(u -> new UsuarioListDTO(
+                        u.getId(),
+                        u.getNombre(),
+                        u.getApellido(),
+                        u.getEmail(),
+                        u.getTipoDeUsuario()
+                ))
+                .toList();
+    }
+
+    public List<UsuarioListDTO> findByNombre(String nombre) {
+        List<Usuario> usuarios = userRepository.findByNombre(nombre);
+        return usuarios.stream()
+                .map(u -> new UsuarioListDTO(
+                        u.getId(),
+                        u.getNombre(),
+                        u.getApellido(),
+                        u.getEmail(),
+                        u.getTipoDeUsuario()
+                ))
+                .toList();
+    }
+
+    public List<UsuarioListDTO> findByApellido(String apellido) {
+        List<Usuario> usuarios = userRepository.findByApellido(apellido);
+
+        return usuarios.stream()
+                .map(u -> new UsuarioListDTO(
+                        u.getId(),
+                        u.getNombre(),
+                        u.getApellido(),
+                        u.getEmail(),
+                        u.getTipoDeUsuario()
+                ))
+                .toList();
+    }
+
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
