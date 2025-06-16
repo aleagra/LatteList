@@ -4,8 +4,6 @@ package com.example.LatteList.controller;
 import com.example.LatteList.DTOs.CafeDTOs.CafeDetailDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeListDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
-import com.example.LatteList.model.Cafe;
-import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.service.CafeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

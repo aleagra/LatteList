@@ -7,23 +7,20 @@ import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.Enums.TipoDeUsuario;
-import com.example.LatteList.exception.CafeNotFoundException;
+import com.example.LatteList.exception.DuenioNoExistenteExeption;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
+
 
 @Service
 public class CafeService {
@@ -37,8 +34,8 @@ public class CafeService {
 
     @Transactional
     public CafeDetailDTO crearCafe(CafeRequestDTO cafeRe){
-      /*  Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
-                orElseThrow(() -> DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));*/
+       Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
+                orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));
     Cafe cafe = new Cafe();
 
 
@@ -62,8 +59,9 @@ public class CafeService {
     public CafeDetailDTO modificarCafe(Long id, CafeRequestDTO datosNuevos){
         Cafe existente = repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
-       /* Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
-                orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));*/
+        
+        Usuario duenio = userRepo.findById(existente.getDuenio().getId()). //esta asi porq falta el repo de usuario
+                orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));
 
         //falta verificar usuario duenio y admin
 
@@ -117,7 +115,7 @@ public class CafeService {
         List<Cafe> cafes = repo.findByDireccionContainingIgnoreCase(textoLimpio);
     
         if (cafes.isEmpty()) {
-       System.out.println("No se encontraron cafés con la direccion: " + direccion);
+       System.out.println("No se encontraron cafés con la direccion: " + direccionParcial);
         }
            return cafes.stream()
             .map(this::toListDTO)
