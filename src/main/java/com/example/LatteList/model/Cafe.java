@@ -42,8 +42,8 @@ public class Cafe {
 
 
     @ManyToOne
-    @JoinColumn(name = "dueño_id", nullable = false)
-    private Usuario dueño;
+    @JoinColumn(name = "duenio_id", nullable = false)
+    private Usuario duenio;
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Resena> reseñas = new ArrayList<>();
@@ -110,12 +110,12 @@ public class Cafe {
         this.etiquetas = etiquetas;
     }
 
-    public Usuario getDueño() {
-        return dueño;
+    public Usuario getDuenio() {
+        return duenio;
     }
 
-    public void setDueño(Usuario dueño) {
-        this.dueño = dueño;
+    public void setDuenio(Usuario duenio) {
+        this.duenio = duenio;
     }
 
     public List<Resena> getReseñas() {

@@ -22,6 +22,34 @@ public class CafeController {
     private CafeService service;
 
 
+    // @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+    @PostMapping
+    public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
+        CafeDetailDTO cafeCreado = service.crearCafe(cafe);
+        return ResponseEntity.ok(cafeCreado);
+    }
+
+    //  @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+    @PutMapping("id/{id}")
+    public ResponseEntity<CafeDetailDTO> modificarCafe(@RequestBody @Valid CafeRequestDTO datosNuevos, @PathVariable Long id){
+        CafeDetailDTO cafe = service.modificarCafe(id, datosNuevos);
+        return ResponseEntity.ok(cafe);
+    }
+
+    // @PreAuthorize("hasRole('DUENIO')")
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
+        service.eliminarCafe(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("id/{id}")
+    public ResponseEntity<CafeDetailDTO> getById(@PathVariable Long id){
+        CafeDetailDTO cafe = service.buscarPorId(id);
+        return ResponseEntity.ok(cafe);
+    }
+
     @GetMapping
     public ResponseEntity<List<CafeListDTO>> getAll(){
         List<CafeListDTO> cafes = service.listarCafes();
@@ -32,6 +60,7 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
+  //  @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/aleatorio")
     public ResponseEntity<CafeDetailDTO> getRandomCafe() {
         CafeDetailDTO cafe = service.obtenerCafeAleatorio();
@@ -79,29 +108,6 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
-    @GetMapping("id/{id}")
-    public ResponseEntity<CafeDetailDTO> getById(@PathVariable Long id){
-        CafeDetailDTO cafe = service.buscarPorId(id);
-        return ResponseEntity.ok(cafe);
-    }
 
-    @PostMapping
-    public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
-        CafeDetailDTO cafeCreado = service.crearCafe(cafe);
-        return ResponseEntity.ok(cafeCreado);
-    }
-
-    @PutMapping("id/{id}")
-    public ResponseEntity<CafeDetailDTO> modificarCafe(@RequestBody @Valid CafeRequestDTO datosNuevos, @PathVariable Long id){
-        CafeDetailDTO cafe = service.modificarCafe(id, datosNuevos);
-        return ResponseEntity.ok(cafe);
-    }
-
-
-    @DeleteMapping("/id/{id}")
-    public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
-        service.eliminarCafe(id);
-        return ResponseEntity.noContent().build();
-    }
 
 }

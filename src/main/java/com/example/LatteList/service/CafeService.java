@@ -6,15 +6,19 @@ import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
 //import com.example.LatteList.exception.CafeNotFoundException;
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
+import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.exception.CafeNotFoundException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,11 +35,15 @@ public class CafeService {
     private UserRepository userRepo;
 
 
+    @Transactional
     public CafeDetailDTO crearCafe(CafeRequestDTO cafeRe){
       /*  Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
                 orElseThrow(() -> DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));*/
     Cafe cafe = new Cafe();
 
+
+    // falta verificar que sea el duenio
+        
     cafe.setNombre(cafeRe.getNombre());
     cafe.setDireccion(cafeRe.getDireccion());
    // cafe.setDueño(duenio);
@@ -50,28 +58,14 @@ public class CafeService {
     }
 
 
-    //La excepcion esta en la rama de ceci
-    public CafeDetailDTO buscarPorId(Long id){
-        Cafe cafe = repo.findById(id).
-                orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
-     
-        return toDetailDTO(cafe);
-    }
-
-
-    public void eliminarCafe(Long id){
-
-        if(!repo.existsById(id)){
-            throw new CafeNotFoundException("El cafe con id "+id+" no existe");
-        }
-        repo.deleteById(id);
-    }
-
+    @Transactional
     public CafeDetailDTO modificarCafe(Long id, CafeRequestDTO datosNuevos){
         Cafe existente = repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
        /* Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
                 orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));*/
+
+        //falta verificar usuario duenio y admin
 
         existente.setInstagramURL(datosNuevos.getInstagramURL());
         existente.setDireccion(datosNuevos.getDireccion());
@@ -85,6 +79,26 @@ public class CafeService {
 
         return toDetailDTO(existente);
     }
+
+    //La excepcion esta en la rama de ceci
+    public CafeDetailDTO buscarPorId(Long id){
+        Cafe cafe = repo.findById(id).
+                orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
+
+        return toDetailDTO(cafe);
+    }
+
+
+    public void eliminarCafe(Long id){
+
+        if(!repo.existsById(id)){
+            throw new CafeNotFoundException("El cafe con id "+id+" no existe");
+        }
+        repo.deleteById(id);
+    }
+
+
+    //------------------------FILTROS Y DEMAS--------------------------------------------------------------------------------------
 
     public List<CafeListDTO> filtrarPorNombre(String nombre) {
     String textoLimpio = nombre.trim();
@@ -149,12 +163,14 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
     }
 
 
+//------------------------AUXILIARES--------------------------------------------------------------------------------------
+
+
 private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     return Arrays.stream(Etiquetas.values())
                 .filter(c -> c.name().equalsIgnoreCase(etiqueta.trim()))
                  .findFirst();
 }
-
 
     //con esto me evito usar el try-catch
     private Optional<CostoPromedio> validarCostoPromedio(String costo) {
@@ -174,7 +190,7 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
                 cafe.getLogo(),
                 cafe.getInstagramURL(),
                 cafe.getEtiquetas(),
-                cafe.getDueño().getNombre()
+                cafe.getDuenio().getNombre()
         );
     }
 
