@@ -2,16 +2,13 @@ package com.example.LatteList.model;
 
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 import java.util.*;
 
 @Entity
-@Table(name = "cafe")
+@Table(name = "cafes")
 public class Cafe {
 
     @Id
@@ -28,25 +25,21 @@ public class Cafe {
     @Column(nullable = false)
     private CostoPromedio costoPromedio;
 
-    @Column(nullable = true)
     private String logo;
 
-    @Column(nullable = true)
     private String instagramURL;
 
-    @ElementCollection(targetClass = Etiquetas.class)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "cafe_etiquetas", joinColumns = @JoinColumn(name = "cafe_id"))
-    @Column(name = "etiqueta")
+    //ESTO NO SE GUARDA EN LA BDD
     private Set<Etiquetas> etiquetas = new HashSet<Etiquetas>();
 
 
     @ManyToOne
-    @JoinColumn(name = "duenio_id", nullable = false)
+    @JoinColumn(name = "dueño_id", nullable = false)
+    @JsonBackReference  // para evitar la serialización recursiva
     private Usuario duenio;
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Resena> reseñas = new ArrayList<>();
+    private List<Resena> resenas = new ArrayList<>();
 
 
 
@@ -118,11 +111,11 @@ public class Cafe {
         this.duenio = duenio;
     }
 
-    public List<Resena> getReseñas() {
-        return reseñas;
+    public List<Resena> getResenas() {
+        return resenas;
     }
 
-    public void setReseñas(List<Resena> reseñas) {
-        this.reseñas = reseñas;
+    public void setResenas(List<Resena> resenas) {
+        this.resenas = resenas;
     }
 }
