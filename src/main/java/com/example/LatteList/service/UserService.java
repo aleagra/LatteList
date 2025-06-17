@@ -8,6 +8,7 @@ import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +18,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -59,9 +63,10 @@ public class UserService implements UserDetailsService {
                 .toList();
     }
 
-    public UsuarioDetailDTO modificarMiUsuario(UsuarioRequestDTO req) {
+    public ResponseEntity<Map<String, String>> modificarMiUsuario(UsuarioRequestDTO req) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
+
         Usuario u = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
@@ -69,23 +74,30 @@ public class UserService implements UserDetailsService {
         u.setApellido(req.getApellido());
         u.setEmail(req.getEmail());
         u.setPassword(passwordEncoder.encode(req.getPassword()));
+        u.setTipoDeUsuario(req.getTipoDeUsuario());
 
-        Usuario actualizado = userRepository.save(u);
+        userRepository.save(u);
 
-        return new UsuarioDetailDTO(
-                actualizado.getId(), actualizado.getNombre(), actualizado.getApellido(),
-                actualizado.getEmail(), actualizado.getTipoDeUsuario()
-        );
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Usuario modificado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    public void eliminarUsuario(Long id) {
+    public ResponseEntity<Map<String, String>> eliminarUsuario(Long id) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("No existe usuario con ID " + id);
         }
+
         userRepository.deleteById(id);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Usuario con ID " + id + " eliminado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    public void eliminarCuenta() {
+    public ResponseEntity<Map<String, String>> eliminarCuenta() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -93,6 +105,13 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         userRepository.delete(usuario);
+
+        SecurityContextHolder.clearContext();
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Tu cuenta fue eliminada correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
     public UsuarioDetailDTO buscarPorId(Long id) {

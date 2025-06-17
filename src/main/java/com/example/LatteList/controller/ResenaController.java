@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/resenas")
 public class ResenaController {
-    @Autowired
+   /* @Autowired
     private ResenaService resenaService;
 
     //solo clinetes suben resenas.
@@ -75,5 +75,5 @@ public class ResenaController {
         resenaService.deleteResena(id);
         return ResponseEntity.noContent().build();
     }
-
+*/
 }

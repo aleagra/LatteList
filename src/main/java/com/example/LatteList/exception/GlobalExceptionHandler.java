@@ -1,4 +1,38 @@
 package com.example.LatteList.exception;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> manejarEntidadNoEncontrada(EntityNotFoundException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> manejarArgumentoInvalido(IllegalArgumentException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("error", "Usuario no encontrado");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
+    }
+
 }

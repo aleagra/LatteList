@@ -9,11 +9,14 @@ import com.example.LatteList.repository.ListaDeCafeRepository;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ListaDeCafeService {
@@ -34,7 +37,7 @@ public class ListaDeCafeService {
     }
 
 
-    public void agregarListaDeCafe(UsuarioListRequestDTO dto){
+    public ResponseEntity<Map<String, String>> agregarListaDeCafe(UsuarioListRequestDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -47,9 +50,15 @@ public class ListaDeCafeService {
 
         usuario.getListasDeCafes().add(nuevaLista);
         userRepository.save(usuario);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "La lista fue creada correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    public void modificarNombreLista(Long listaId, UsuarioListRequestDTO dto) {
+
+    public ResponseEntity<Map<String, String>> modificarNombreLista(Long listaId, UsuarioListRequestDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -59,15 +68,16 @@ public class ListaDeCafeService {
         ListaDeCafe lista = listaDeCafeRepository.findById(listaId)
                 .orElseThrow(() -> new EntityNotFoundException("Lista no encontrada"));
 
-        if (!lista.getUsuario().getId().equals(usuario.getId())) {
-            throw new SecurityException("No tenés permiso para modificar esta lista.");
-        }
-
         lista.setNombre(dto.getNombre());
         listaDeCafeRepository.save(lista);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "El nombre de la lista fue modificado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    public void eliminarLista(Long listaId) {
+    public ResponseEntity<Map<String, String>> eliminarLista(Long listaId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -82,9 +92,14 @@ public class ListaDeCafeService {
         }
 
         listaDeCafeRepository.delete(lista);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "La lista fue eliminada correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    public void agregarCafeALaLista(Long listaId, CafeRequestDTO dto) {
+    public ResponseEntity<Map<String, String>> agregarCafeALaLista(Long listaId, CafeRequestDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -110,9 +125,13 @@ public class ListaDeCafeService {
 
         lista.cargarUnCafe(nuevoCafe);
         listaDeCafeRepository.save(lista);
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "El cafe fue agregado correctamente.");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    public void eliminarCafeDeLista(Long listaId, Long cafeId) {
+    public ResponseEntity<Map<String, String>> eliminarCafeDeLista(Long listaId, Long cafeId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -133,6 +152,11 @@ public class ListaDeCafeService {
         }
 
         listaDeCafeRepository.save(lista);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "El cafe fue eliminado correctamente.");
+
+        return ResponseEntity.ok(respuesta);
     }
 
 
