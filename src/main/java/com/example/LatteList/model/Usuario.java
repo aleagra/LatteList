@@ -1,6 +1,7 @@
 package com.example.LatteList.model;
 
 import com.example.LatteList.Enums.TipoDeUsuario;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -38,7 +39,8 @@ public class Usuario implements UserDetails {
     private TipoDeUsuario tipoDeUsuario;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ListaDeCafe> listasDeCafes = new ArrayList<ListaDeCafe>();
+    @JsonManagedReference
+    private List<ListaDeCafe> listasDeCafes = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resena> resenas = new ArrayList<Resena>();

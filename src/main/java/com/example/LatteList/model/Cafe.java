@@ -2,6 +2,7 @@ package com.example.LatteList.model;
 
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,6 +39,7 @@ public class Cafe {
 
     @ManyToOne
     @JoinColumn(name = "dueño_id", nullable = false)
+    @JsonBackReference  // para evitar la serialización recursiva
     private Usuario dueño;
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
