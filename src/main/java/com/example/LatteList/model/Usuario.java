@@ -1,17 +1,23 @@
 package com.example.LatteList.model;
 
 import com.example.LatteList.Enums.TipoDeUsuario;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +33,14 @@ public class Usuario {
     private String email;
 
     @Column(nullable = false)
-    private String contrasena;
+    private String password;
 
     @Column(nullable = false)
     private TipoDeUsuario tipoDeUsuario;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ArrayList<ListaDeCafe> listasDeCafes = new ArrayList<ListaDeCafe>();
+    @JsonManagedReference
+    private List<ListaDeCafe> listasDeCafes = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resena> resenas = new ArrayList<Resena>();
@@ -66,13 +73,7 @@ public class Usuario {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
+    public void setPassword(String password) {this.password = password;}
 
     public TipoDeUsuario getTipoDeUsuario() {
         return tipoDeUsuario;
@@ -82,11 +83,11 @@ public class Usuario {
         this.tipoDeUsuario = tipoDeUsuario;
     }
 
-    public ArrayList<ListaDeCafe> getListasDeCafes() {
+    public List<ListaDeCafe> getListasDeCafes() {
         return listasDeCafes;
     }
 
-    public void setListasDeCafes(ArrayList<ListaDeCafe> listasDeCafes) {
+    public void setListasDeCafes(List<ListaDeCafe> listasDeCafes) {
         this.listasDeCafes = listasDeCafes;
     }
 
@@ -105,10 +106,45 @@ public class Usuario {
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
-                ", contrasena='" + contrasena + '\'' +
+                ", contrasena='" + password + '\'' +
                 ", tipoDeUsuario=" + tipoDeUsuario +
                 ", listasDeCafes=" + listasDeCafes +
                 ", resenas=" + resenas +
                 '}';
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(tipoDeUsuario.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 }
