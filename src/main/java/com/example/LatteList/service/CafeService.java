@@ -46,19 +46,8 @@ public class CafeService {
         cafe.setCostoPromedio(cafeRe.getCostoPromedio());
         cafe.setLogo(cafeRe.getLogo());
         cafe.setInstagramURL(cafeRe.getInstagramURL());
+        cafe.setDuenio(actual);
 
-        if (actual.getTipoDeUsuario() == TipoDeUsuario.ADMIN) {
-            Usuario duenio = userRepository.findById(cafeRe.getIdDuenio())
-                    .orElseThrow(() -> new EntityNotFoundException("El usuario ingresado como dueño es invalido"));
-            if (duenio.getTipoDeUsuario() != TipoDeUsuario.DUENIO) {
-                throw new AccessDeniedException("El usuario que esta ingresando no esta verificado como dueño");
-            }
-            cafe.setDuenio(duenio);
-        } else if (actual.getTipoDeUsuario() == TipoDeUsuario.DUENIO) {
-            cafe.setDuenio(actual);
-        } else {
-            throw new AccessDeniedException("No tenes permiso para crear un cafe");
-        }
     repo.save(cafe);
     return toDetailDTO(cafe);
     }
@@ -71,24 +60,16 @@ public class CafeService {
         String email = auth.getName();
         Usuario actual = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-        if (actual.getTipoDeUsuario() != TipoDeUsuario.ADMIN &&
-                !existente.getDuenio().getId().equals(actual.getId())) {
-            throw new AccessDeniedException("No tenes permiso para modificar este cafe");
-        }
-        if (actual.getTipoDeUsuario() == TipoDeUsuario.ADMIN && datosNuevos.getIdDuenio() != null) {
-            Usuario nuevoDuenio = userRepository.findById(datosNuevos.getIdDuenio())
-                    .orElseThrow(() -> new DuenioNoExistenteExeption("El nuevo dueño no es valido"));
-            if (nuevoDuenio.getTipoDeUsuario() != TipoDeUsuario.DUENIO) {
-                throw new IllegalArgumentException("El usuario que quiere ingresar como dueño no es de ese tipo");
-            }
-            existente.setDuenio(nuevoDuenio);
-        }
+
+
+        existente.setDuenio(actual);
         existente.setInstagramURL(datosNuevos.getInstagramURL());
         existente.setDireccion(datosNuevos.getDireccion());
         existente.setLogo(datosNuevos.getLogo());
         existente.setEtiquetas(datosNuevos.getEtiquetas());
         existente.setCostoPromedio(datosNuevos.getCostoPromedio());
         existente.setNombre(datosNuevos.getNombre());
+
         repo.save(existente);
         return toDetailDTO(existente);
     }

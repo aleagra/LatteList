@@ -45,8 +45,6 @@ public class CafeRequestDTO {
     @Size(min = 1, message = "Debe tener al menos una etiqueta.")
     private Set<Etiquetas> etiquetas = new HashSet<Etiquetas>();
 
-    @NotNull(message = "El ID del dueño es obligatorio.")
-    private Long idDuenio;
 
     public @NotBlank(message = "El nombre es obligatorio.") @Size(min = 3, max = 20, message = "El nombre debe contener entre 3 a 20 caracteres") String getNombre() {
         return nombre;
@@ -114,11 +112,5 @@ public class CafeRequestDTO {
         this.etiquetas = etiquetas;
     }
 
-    public @NotNull(message = "El ID del dueño es obligatorio.") Long getIdDuenio() {
-        return idDuenio;
-    }
 
-    public void setIdDuenio(@NotNull(message = "El ID del dueño es obligatorio.") Long idDuenio) {
-        this.idDuenio = idDuenio;
-    }
 }
