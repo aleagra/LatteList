@@ -2,9 +2,7 @@ package com.example.LatteList.controller;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.*;
 import com.example.LatteList.Enums.TipoDeUsuario;
-import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.ListaDeCafe;
-import com.example.LatteList.model.Usuario;
 import com.example.LatteList.service.ListaDeCafeService;
 import com.example.LatteList.service.UserService;
 import jakarta.validation.Valid;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 

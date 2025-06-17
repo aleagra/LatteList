@@ -1,6 +1,4 @@
 package com.example.LatteList.controller;
-
-
 import com.example.LatteList.DTOs.CafeDTOs.CafeDetailDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeListDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
@@ -19,7 +17,6 @@ public class CafeController {
 
     @Autowired
     private CafeService service;
-
 
    @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
     @PostMapping
@@ -60,7 +57,7 @@ public class CafeController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
-    @GetMapping("/por-duenio")
+    @GetMapping("/duenio")
     public ResponseEntity<List<CafeListDTO>> getCafesPorDuenio(@RequestParam Long idDuenio) {
         List<CafeListDTO> cafes = service.filtrarPorDuenio(idDuenio);
 
@@ -78,7 +75,7 @@ public class CafeController {
         return ResponseEntity.ok(cafe);
     }
 
-    @GetMapping("/CostoPromedio")
+    @GetMapping("/costoPromedio")
     public ResponseEntity<List<CafeListDTO>> getAllByCostoPromedio(@RequestParam String costoPromedio){
         List<CafeListDTO> cafes = service.filtrarPorCostoPromedio(costoPromedio);
 

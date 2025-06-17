@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-
-
 @Service
 public class CafeService {
 
@@ -95,7 +93,6 @@ public class CafeService {
         return toDetailDTO(existente);
     }
 
-    //La excepcion esta en la rama de ceci
     public CafeDetailDTO buscarPorId(Long id){
         Cafe cafe = buscarPorIdAux(id);
 
@@ -250,8 +247,5 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     private CafeListDTO toListDTO(Cafe cafe) {
         return new CafeListDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio());
     }
-
-
-
 
 }
