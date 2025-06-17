@@ -22,7 +22,7 @@ public class ResenaController {
     @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping
     public ResponseEntity<Resena> crearResena(@Valid @RequestBody ResenaRequestDTO dto) {
-        Resena nuevaResena = resenaService.postReserna(dto);
+        Resena nuevaResena = resenaService.postReserna(dto,nuevaResena.getUsuario().getEmail());
         return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
     }
 

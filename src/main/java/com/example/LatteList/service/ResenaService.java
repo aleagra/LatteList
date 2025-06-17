@@ -44,9 +44,9 @@ public class ResenaService {
         return resenaRepository.save(resena);
     }
 
-    public List<Resena> getAllResenas() {
+    /*public List<Resena> getAllResenas() {
         return resenaRepository.findAll();
-    }
+    }*/
 
     public Resena getResenaById(Long id) {
         return resenaRepository.findById(id)
@@ -58,23 +58,18 @@ public class ResenaService {
         resenaRepository.delete(resena);
     }
 
-    public Resena actualizarResena(Long id, ResenaRequestDTO dto) {
-        Resena resena = getResenaById(id);
+    public List<Resena> getResenasPorCafe(Long cafeId) {
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CafeNotFoundException("No se encontró el café con id: " + cafeId));
 
-        // se puede cambiar el cafe y el usuario?
-        Usuario usuario = userRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + dto.getUsuarioId()));
-        Cafe cafe = cafeRepository.findById(dto.getCafeId())
-                .orElseThrow(() -> new RuntimeException("Café no encontrado con ID: " + dto.getCafeId()));
+        return resenaRepository.findByCafe(cafe);
+    }
 
-        resena.setPuntuacionPrecio(dto.getPuntuacionPrecio());
-        resena.setPuntuacionAtencion(dto.getPuntuacionAtencion());
-        resena.setComentario(dto.getComentario());
-        resena.setPuntuacionGeneral(dto.getPuntuacionGeneral());
-        resena.setUsuario(usuario);
-        resena.setCafe(cafe);
+    public List<Resena> getResenasDelCliente(String email) {
+        Usuario usuario = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario con email: " + email));
 
-        return resenaRepository.save(resena);
+        return resenaRepository.findByUsuario(usuario);
     }
 
 }
