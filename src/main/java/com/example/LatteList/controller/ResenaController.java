@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -17,39 +18,63 @@ public class ResenaController {
     @Autowired
     private ResenaService resenaService;
 
+    //solo clinetes suben resenas.
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping
     public ResponseEntity<Resena> crearResena(@Valid @RequestBody ResenaRequestDTO dto) {
         Resena nuevaResena = resenaService.postReserna(dto);
         return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<?> obtenerTodasLasResenas() {
-        List<Resena> resenas = resenaService.getAllResenas();
+    //todos loos usuarios registrados. pueden ver todas las resenas de un cafe .
+    @PreAuthorize("hasRole('CLIENTE') or hasRole('DUENIO') or hasRole('ADMIN')")
+    @GetMapping("/cafe/{idCafe}/resenas")
+    public ResponseEntity<?> obtenerResenasDeUnCafe(@PathVariable Long idCafe) {
+        List<Resena> resenas = resenaService.getResenasPorCafe(idCafe);
+
         if (resenas.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body("No hay reseñas registradas.");
+                    .body("Este café aún no tiene reseñas.");
         }
+
         return ResponseEntity.ok(resenas);
     }
 
+    //el cliente puede ver sus resenas !
+    @PreAuthorize("hasRole('CLIENTE')")
+    @GetMapping("/misresenas")
+    public ResponseEntity<List<Resena>> obtenerMisResenas() {
+        // Obtener el nombre de usuario autenticado
+        String usernameActual = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Resena> obtenerResenaPorId(@PathVariable Long id) {
-        Resena resena = resenaService.getResenaById(id);
-        return ResponseEntity.ok(resena);
+        // Buscar las reseñas del cliente autenticado
+        List<Resena> resenas = resenaService.getResenasDelCliente(usernameActual);
+
+        return ResponseEntity.ok(resenas);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Resena> actualizarResena(@PathVariable Long id, @Valid @RequestBody ResenaRequestDTO dto) {
-        Resena resenaActualizada = resenaService.actualizarResena(id, dto);
-        return ResponseEntity.ok(resenaActualizada);
-    }
-
+ //borrar resenas. clientes las suyas. admin todas.
+    @PreAuthorize("hasRole('CLIENTE') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarResena(@PathVariable Long id) {
+        //guardo para ver que rol ingreso.
+        String usuarioActual = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        //ver si es admin o cliente.
+        boolean esAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities()
+                .stream()
+                .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN"));
+
+        Resena resena = resenaService.getResenaById(id); //ve si existe.
+
+        // Si no es admin, validar que la reseña sea del usuario
+        if (!esAdmin && !resena.getCliente().getEmail().equals(usuarioActual)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar esta reseña, no es tuya");
+        }
+       //si es admin borra cualquirea.
         resenaService.deleteResena(id);
-        return ResponseEntity.noContent().build(); // HTTP 204 sin contenido
+        return ResponseEntity.noContent().build();
     }
 
 }
