@@ -28,21 +28,17 @@ public class ResenaController {
         return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
     }
 
-    //todos loos usuarios registrados. pueden ver todas las resenas de un cafe .
-    @PreAuthorize("hasRole('CLIENTE') or hasRole('DUENIO') or hasRole('ADMIN')")
+
     @GetMapping("/cafe/{idCafe}/resenas")
     public ResponseEntity<?> obtenerResenasDeUnCafe(@PathVariable Long idCafe) {
         List<Resena> resenas = resenaService.getResenasPorCafe(idCafe);
-
         if (resenas.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body("Este café aún no tiene reseñas.");
         }
-
         return ResponseEntity.ok(resenas);
     }
-
-    //el cliente puede ver sus resenas !
+    // CAMBIAR METODO
     @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/misresenas")
     public ResponseEntity<List<Resena>> obtenerMisResenas() {
@@ -55,6 +51,7 @@ public class ResenaController {
         return ResponseEntity.ok(resenas);
     }
 
+    // SEPARAR EN METODO PARA USUARIO Y PARA ADMIN
  //borrar resenas. clientes las suyas. admin todas.
     @PreAuthorize("hasRole('CLIENTE') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")

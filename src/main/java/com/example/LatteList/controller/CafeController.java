@@ -18,14 +18,14 @@ public class CafeController {
     @Autowired
     private CafeService service;
 
-   @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+   @PreAuthorize("hasRole('DUENIO')")
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);
         return ResponseEntity.ok(cafeCreado);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+    @PreAuthorize("hasRole('DUENIO')")
     @PutMapping("id/{id}")
     public ResponseEntity<CafeDetailDTO> modificarCafe(@RequestBody @Valid CafeRequestDTO datosNuevos, @PathVariable Long id){
         CafeDetailDTO cafe = service.modificarCafe(id, datosNuevos);
@@ -39,7 +39,6 @@ public class CafeController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("id/{id}")
     public ResponseEntity<CafeDetailDTO> getById(@PathVariable Long id){
         CafeDetailDTO cafe = service.buscarPorId(id);
@@ -49,70 +48,44 @@ public class CafeController {
     @GetMapping
     public ResponseEntity<List<CafeListDTO>> getAll(){
         List<CafeListDTO> cafes = service.listarCafes();
-
-        if(cafes.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(cafes);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
-    @GetMapping("/duenio")
+    // FILTRAR POR NOMBRE Y APELLIDO
+    @GetMapping("/duenio/{nombre}{apellido}")
     public ResponseEntity<List<CafeListDTO>> getCafesPorDuenio(@RequestParam Long idDuenio) {
         List<CafeListDTO> cafes = service.filtrarPorDuenio(idDuenio);
-
-        if (cafes.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(cafes);
     }
 
-    @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/aleatorio")
     public ResponseEntity<CafeDetailDTO> getRandomCafe() {
         CafeDetailDTO cafe = service.obtenerCafeAleatorio();
         return ResponseEntity.ok(cafe);
     }
 
-    @GetMapping("/costoPromedio")
+    @GetMapping("/costoPromedio/{costoPromedio}")
     public ResponseEntity<List<CafeListDTO>> getAllByCostoPromedio(@RequestParam String costoPromedio){
         List<CafeListDTO> cafes = service.filtrarPorCostoPromedio(costoPromedio);
-
-        if(cafes.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(cafes);
       }
 
 
-    @GetMapping("/etiquetas")
+    @GetMapping("/etiquetas/{etiqueta}")
     public ResponseEntity<List<CafeListDTO>> getAllByEtiquetas(@RequestParam String etiqueta){
         List<CafeListDTO> cafes = service.filtrarPorEtiqueta(etiqueta);
-
-        if(cafes.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(cafes);
     }
 
-   @GetMapping("/direccion")
+   @GetMapping("/direccion/{direccion}")
    public ResponseEntity<List<CafeListDTO>> getAllByDireccion(@RequestParam String direccion){
        List<CafeListDTO> cafes = service.filtrarPorDireccionAprox(direccion);
-
-       if(cafes.isEmpty()){
-           return ResponseEntity.noContent().build();
-       }
        return ResponseEntity.ok(cafes);
    }
 
-    @GetMapping("/nombre")
+    @GetMapping("/nombre/{nombre}")
     public ResponseEntity<List<CafeListDTO>> getAllByName(@RequestParam String nombre){
         List<CafeListDTO> cafes = service.filtrarPorNombre(nombre);
-
-        if(cafes.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(cafes);
     }
 
