@@ -1,12 +1,13 @@
 package com.example.LatteList.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "ListaDeCafes")
+@Table(name = "listas")
 public class ListaDeCafe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +17,7 @@ public class ListaDeCafe {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
+    @JsonBackReference
     private Usuario usuario;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -57,4 +59,12 @@ public class ListaDeCafe {
     public void setCafes(List<Cafe> cafes) {
         this.cafes = cafes;
     }
+
+    public void cargarUnCafe(Cafe cafe) {
+        if (cafe != null && !cafes.contains(cafe)) {
+            cafes.add(cafe);
+        }
+    }
+
+
 }
