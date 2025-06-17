@@ -3,6 +3,7 @@ package com.example.LatteList.repository;
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.model.Cafe;
+import com.example.LatteList.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,5 +27,5 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
     @Query(value = "SELECT * FROM cafe ORDER BY RAND() LIMIT 1", nativeQuery = true)
     Optional<Cafe> obtenerCafeAleatorio();
 
-    List<Cafe> findByDuenio_Id(Long id);
+    List<Cafe> findByDuenioIn(List<Usuario> duenios);
 }

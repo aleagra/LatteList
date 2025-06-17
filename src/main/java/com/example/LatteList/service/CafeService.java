@@ -115,36 +115,31 @@ public class CafeService {
 
     //------------------------FILTROS Y DEMAS--------------------------------------------------------------------------------------
 
-    //para admin
-    public List<CafeListDTO> filtrarPorDuenio(Long idDuenio){
+    public List<CafeListDTO> filtrarPorDuenio(String nombre, String apellido){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         Usuario actual = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
-        if (actual.getTipoDeUsuario() == TipoDeUsuario.DUENIO && !actual.getId().equals(idDuenio)) {
-            throw new AccessDeniedException("No tenes permiso para ver los cafes de otro usuario");
+        String nombreLimpio = nombre.trim();
+        String apellidoLimpio = apellido.trim();
+        List<Usuario> usuarios = userRepository.findByNombreAndApellido(nombre, apellido);
+
+        if(usuarios.isEmpty()){
+            throw new EntityNotFoundException("No existe ningun usuario de nombre:"+nombre+" "+apellido);
         }
 
-        if (actual.getTipoDeUsuario() == TipoDeUsuario.ADMIN) {
-            Usuario duenio = userRepository.findById(idDuenio)
-                    .orElseThrow(() -> new EntityNotFoundException("No existe un usuario con id: " + idDuenio));
-
-            if (duenio.getTipoDeUsuario() != TipoDeUsuario.DUENIO) {
-                throw new IllegalArgumentException("El usuario con id " + idDuenio + " no esta registrado como dueño.");
-            }
-        }
-
-        List<Cafe> cafes = repo.findByDuenio_Id(idDuenio);
+        List<Cafe> cafes = repo.findByDuenioIn(usuarios);
 
         if (cafes.isEmpty()) {
-            System.out.println("No se encontraron cafes del usuario con email: " +actual.getEmail());
+            System.out.println("No se encontraron cafes del usuario/s con nombre: " +nombre+" "+apellido);
         }
 
         return cafes.stream()
                 .map(this::toListDTO)
                 .toList();
     }
+
 
     public List<CafeListDTO> filtrarPorNombre(String nombre) {
     String textoLimpio = nombre.trim();
@@ -245,7 +240,7 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     }
 
     private CafeListDTO toListDTO(Cafe cafe) {
-        return new CafeListDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio());
+        return new CafeListDTO(cafe.getId(), cafe.getNombre(), cafe.getDireccion(), cafe.getCostoPromedio(), cafe.getDuenio().getId());
     }
 
 }

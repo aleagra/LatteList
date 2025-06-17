@@ -2,6 +2,7 @@ package com.example.LatteList.controller;
 import com.example.LatteList.DTOs.CafeDTOs.CafeDetailDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeListDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
+import com.example.LatteList.model.Usuario;
 import com.example.LatteList.service.CafeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,13 @@ public class CafeController {
     @Autowired
     private CafeService service;
 
-   @PreAuthorize("hasRole('DUENIO')")
+    @PreAuthorize("hasRole('DUENIO')")
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);
         return ResponseEntity.ok(cafeCreado);
     }
+
 
     @PreAuthorize("hasRole('DUENIO')")
     @PutMapping("id/{id}")
@@ -51,10 +53,10 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
-    // FILTRAR POR NOMBRE Y APELLIDO
-    @GetMapping("/duenio/{nombre}{apellido}")
-    public ResponseEntity<List<CafeListDTO>> getCafesPorDuenio(@RequestParam Long idDuenio) {
-        List<CafeListDTO> cafes = service.filtrarPorDuenio(idDuenio);
+       @GetMapping("/duenio/{nombre}/{apellido}")
+    public ResponseEntity<List<CafeListDTO>> getCafesPorDuenio(@RequestParam String nombre, @RequestParam String apellido) {
+
+        List<CafeListDTO> cafes = service.filtrarPorDuenio(nombre, apellido);
         return ResponseEntity.ok(cafes);
     }
 
