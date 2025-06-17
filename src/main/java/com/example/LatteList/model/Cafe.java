@@ -29,31 +29,29 @@ public class Cafe {
 
     private String instagramURL;
 
-    //ESTO NO SE GUARDA EN LA BDD
-    private Set<Etiquetas> etiquetas = new HashSet<Etiquetas>();
-
+    @ElementCollection(targetClass = Etiquetas.class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(
+            name = "cafe_etiquetas",
+            joinColumns = @JoinColumn(name = "cafe_id")
+    )
+    @Column(name = "etiqueta")
+    private Set<Etiquetas> etiquetas = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "dueño_id", nullable = false)
-    @JsonBackReference  // para evitar la serialización recursiva
+    @JsonBackReference
     private Usuario duenio;
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Resena> resenas = new ArrayList<>();
 
-
-
-
-    //
     public Cafe() {
     }
-
 
     public Long getId() {
         return id;
     }
-
-
 
     public String getNombre() {
         return nombre;
