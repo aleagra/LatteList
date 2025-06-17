@@ -25,4 +25,6 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 
   @Query(value = "SELECT * FROM cafe ORDER BY RAND() LIMIT 1", nativeQuery = true)
   Optional<Cafe> obtenerCafeAleatorio();
+
+  List<Cafe> findByDuenio_Id(Long id);
 }

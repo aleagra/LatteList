@@ -3,15 +3,17 @@ package com.example.LatteList.service;
 import com.example.LatteList.DTOs.CafeDTOs.CafeDetailDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeListDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
-//import com.example.LatteList.exception.CafeNotFoundException;
+import com.example.LatteList.exception.CafeNotFoundException;
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.exception.DuenioNoExistenteExeption;
+import com.example.LatteList.exception.AccessDeniedException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,27 +30,41 @@ public class CafeService {
     @Autowired
     private CafeRepository repo;
 
+    //una vez que este el merge se puede cambiar por y poner el servicio directamente
+    //y reutilizar los metodos de ahi
     @Autowired
     private UserRepository userRepo;
 
 
     @Transactional
     public CafeDetailDTO crearCafe(CafeRequestDTO cafeRe){
-       Usuario duenio = userRepo.findById(cafeRe.getIdDuenio()).
-                orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));
-    Cafe cafe = new Cafe();
+        Usuario actual = getUsuarioAutenticado();
 
+        Cafe cafe = new Cafe();
+        cafe.setNombre(cafeRe.getNombre());
+        cafe.setDireccion(cafeRe.getDireccion());
+        cafe.setEtiquetas(cafeRe.getEtiquetas());
+        cafe.setCostoPromedio(cafeRe.getCostoPromedio());
+        cafe.setLogo(cafeRe.getLogo());
+        cafe.setInstagramURL(cafeRe.getInstagramURL());
 
-    // falta verificar que sea el duenio
-        
-    cafe.setNombre(cafeRe.getNombre());
-    cafe.setDireccion(cafeRe.getDireccion());
-   // cafe.setDueño(duenio);
-    cafe.setEtiquetas(cafeRe.getEtiquetas());
-    cafe.setCostoPromedio(cafeRe.getCostoPromedio());
-    cafe.setLogo(cafeRe.getLogo());
-    cafe.setInstagramURL(cafeRe.getInstagramURL());
+        if (actual.getTipoDeUsuario() == TipoDeUsuario.ADMIN) {
+            Usuario duenio = userRepo.findById(cafeRe.getIdDuenio())
+                    .orElseThrow(() -> new EntityNotFoundException("El usuario ingresado como dueño es invalido"));
 
+            if (duenio.getTipoDeUsuario() != TipoDeUsuario.DUENIO) {
+                throw new AccessDeniedException("El usuario que esta ingresando no esta verificado como dueño");
+            }
+
+            cafe.setDuenio(duenio);
+
+        } else if (actual.getTipoDeUsuario() == TipoDeUsuario.DUENIO) {
+
+            cafe.setDuenio(actual);
+
+        } else {
+            throw new AccessDeniedException("No tenes permiso para crear un cafe");
+        }
     repo.save(cafe);
 
     return toDetailDTO(cafe);
@@ -57,19 +73,30 @@ public class CafeService {
 
     @Transactional
     public CafeDetailDTO modificarCafe(Long id, CafeRequestDTO datosNuevos){
-        Cafe existente = repo.findById(id).
-                orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
-        
-        Usuario duenio = userRepo.findById(existente.getDuenio().getId()). //esta asi porq falta el repo de usuario
-                orElseThrow(() -> new DuenioNoExistenteExeption("El usuario ingresado como duenio no es valido"));
+        Cafe existente = buscarPorIdAux(id);
 
-        //falta verificar usuario duenio y admin
+        Usuario actual = getUsuarioAutenticado();
+
+        if (actual.getTipoDeUsuario() != TipoDeUsuario.ADMIN &&
+                !existente.getDuenio().getId().equals(actual.getId())) {
+            throw new AccessDeniedException("No tenes permiso para modificar este cafe");
+        }
+
+        if (actual.getTipoDeUsuario() == TipoDeUsuario.ADMIN && datosNuevos.getIdDuenio() != null) {
+            Usuario nuevoDuenio = userRepo.findById(datosNuevos.getIdDuenio())
+                    .orElseThrow(() -> new DuenioNoExistenteExeption("El nuevo dueño no es valido"));
+
+            if (nuevoDuenio.getTipoDeUsuario() != TipoDeUsuario.DUENIO) {
+                throw new IllegalArgumentException("El usuario que quiere ingresar como dueño no es de ese tipo");
+            }
+
+            existente.setDuenio(nuevoDuenio);
+        }
 
         existente.setInstagramURL(datosNuevos.getInstagramURL());
         existente.setDireccion(datosNuevos.getDireccion());
         existente.setLogo(datosNuevos.getLogo());
         existente.setEtiquetas(datosNuevos.getEtiquetas());
-        //existente.setDueño(duenio);
         existente.setCostoPromedio(datosNuevos.getCostoPromedio());
         existente.setNombre(datosNuevos.getNombre());
 
@@ -80,30 +107,62 @@ public class CafeService {
 
     //La excepcion esta en la rama de ceci
     public CafeDetailDTO buscarPorId(Long id){
-        Cafe cafe = repo.findById(id).
-                orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
+        Cafe cafe = buscarPorIdAux(id);
 
         return toDetailDTO(cafe);
     }
 
 
-    public void eliminarCafe(Long id){
+    @Transactional
+    public void eliminarCafe(Long id) {
+        Cafe cafe = buscarPorIdAux(id);
 
-        if(!repo.existsById(id)){
-            throw new CafeNotFoundException("El cafe con id "+id+" no existe");
+        Usuario actual = getUsuarioAutenticado();
+
+        if (actual.getTipoDeUsuario() != TipoDeUsuario.ADMIN &&
+                !cafe.getDuenio().getId().equals(actual.getId())) {
+            throw new AccessDeniedException("No tenes permiso para eliminar este cafe");
         }
+
         repo.deleteById(id);
     }
 
-
     //------------------------FILTROS Y DEMAS--------------------------------------------------------------------------------------
+
+    //para admin
+    public List<CafeListDTO> filtrarPorDuenio(Long idDuenio){
+        Usuario actual = getUsuarioAutenticado();
+
+        if (actual.getTipoDeUsuario() == TipoDeUsuario.DUENIO && !actual.getId().equals(idDuenio)) {
+            throw new AccessDeniedException("No tenes permiso para ver los cafes de otro usuario");
+        }
+
+        if (actual.getTipoDeUsuario() == TipoDeUsuario.ADMIN) {
+            Usuario duenio = userRepo.findById(idDuenio)
+                    .orElseThrow(() -> new EntityNotFoundException("No existe un usuario con id: " + idDuenio));
+
+            if (duenio.getTipoDeUsuario() != TipoDeUsuario.DUENIO) {
+                throw new IllegalArgumentException("El usuario con id " + idDuenio + " no esta registrado como dueño.");
+            }
+        }
+
+        List<Cafe> cafes = repo.findByDuenio_Id(idDuenio);
+
+        if (cafes.isEmpty()) {
+            System.out.println("No se encontraron cafes del usuario con email: " +actual.getEmail());
+        }
+
+        return cafes.stream()
+                .map(this::toListDTO)
+                .toList();
+    }
 
     public List<CafeListDTO> filtrarPorNombre(String nombre) {
     String textoLimpio = nombre.trim();
     List<Cafe> cafes = repo.findByNombreContainingIgnoreCase(textoLimpio);
 
      if (cafes.isEmpty()) {
-       System.out.println("No se encontraron cafés con el nombre: " + nombre);
+       System.out.println("No se encontraron cafes con el nombre: " + nombre);
     }
     return cafes.stream()
             .map(this::toListDTO)
@@ -164,6 +223,19 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
 //------------------------AUXILIARES--------------------------------------------------------------------------------------
 
 
+    private Usuario getUsuarioAutenticado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+    }
+
+    public Cafe buscarPorIdAux(Long id){
+        Cafe cafe = repo.findById(id).
+                orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
+
+        return cafe;
+    }
+
 private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     return Arrays.stream(Etiquetas.values())
                 .filter(c -> c.name().equalsIgnoreCase(etiqueta.trim()))
@@ -188,7 +260,10 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
                 cafe.getLogo(),
                 cafe.getInstagramURL(),
                 cafe.getEtiquetas(),
-                cafe.getDuenio().getNombre()
+                cafe.getDuenio().getNombre(),
+                cafe.getDuenio().getApellido(),
+                cafe.getDuenio().getId()
+
         );
     }
 

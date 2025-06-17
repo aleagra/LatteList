@@ -20,21 +20,21 @@ public class CafeController {
     private CafeService service;
 
 
-    // @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+   @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);
         return ResponseEntity.ok(cafeCreado);
     }
 
-    //  @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
     @PutMapping("id/{id}")
     public ResponseEntity<CafeDetailDTO> modificarCafe(@RequestBody @Valid CafeRequestDTO datosNuevos, @PathVariable Long id){
         CafeDetailDTO cafe = service.modificarCafe(id, datosNuevos);
         return ResponseEntity.ok(cafe);
     }
 
-    // @PreAuthorize("hasRole('DUENIO')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
     @DeleteMapping("/id/{id}")
     public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
         service.eliminarCafe(id);
@@ -58,7 +58,19 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
-  //  @PreAuthorize("hasRole('CLIENTE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
+    @GetMapping("/por-duenio")
+    public ResponseEntity<List<CafeListDTO>> getCafesPorDuenio(@RequestParam Long idDuenio) {
+        List<CafeListDTO> cafes = service.filtrarPorDuenio(idDuenio);
+
+        if (cafes.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(cafes);
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/aleatorio")
     public ResponseEntity<CafeDetailDTO> getRandomCafe() {
         CafeDetailDTO cafe = service.obtenerCafeAleatorio();
