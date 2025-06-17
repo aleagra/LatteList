@@ -23,8 +23,8 @@ public class Resena {
     @Column(nullable = false)
     private String comentario;
 
-
-    private LocalDate fecha = LocalDate.now();
+    @Column(nullable = false)
+    private LocalDate fecha ; //el setter automatico le pone la fecha de ahora.
 
     @Column(nullable = false)
     private Integer puntuacionGeneral;
@@ -39,8 +39,18 @@ public class Resena {
     @JoinColumn(name = "cafe_id")
     private Cafe cafe;
 
-    // Constructores
+    // Constructor//////////////////////////////////////////////////////////////////////////
     public Resena() {}
+
+
+    //getter y setter.//////////////////////////////////////////////////////////////////////
+
+    //este metodo para poner la fecha de ahora cuando se crea  unicamente. !
+    // asi sino se crea no queda mal cargadooooo
+    @PrePersist
+    protected void onCreate() {
+        fecha = LocalDate.now();
+    }
 
     public Long getId() {
         return id;
@@ -74,10 +84,6 @@ public class Resena {
         return fecha;
     }
 
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
-    }
-
     public Integer getPuntuacionGeneral() {
         return puntuacionGeneral;
     }
@@ -102,6 +108,7 @@ public class Resena {
         this.cafe = cafe;
     }
 
+    //to string.
     @Override
     public String toString() {
         return "Resena{" +

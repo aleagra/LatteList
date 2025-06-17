@@ -4,33 +4,37 @@ import jakarta.validation.constraints.*;
 
 public class ResenaRequestDTO {
 
-  @NotNull(message = "El ID del usuario es obligatorio")
+    @NotNull(message = "El ID del usuario es obligatorio")
     private Long usuarioId;
 
-  @NotNull(message = "El ID del café es obligatorio")
+    @NotNull(message = "El ID del café es obligatorio")
     private Long cafeId;
 
-  @Min(value = 1, message = "La puntuación debe ser al menos 1")
-  @Max(value = 5, message = "La puntuación no puede superar 5")
+    @NotNull(message = "La puntuación de precio es obligatoria")
+    @Min(value = 1, message = "La puntuación debe ser al menos 1")
+    @Max(value = 5, message = "La puntuación no puede superar 5")
     private Integer puntuacionPrecio;
 
-  @Min(value = 1, message = "La puntuación debe ser al menos 1")
-  @Max(value = 5, message = "La puntuación no puede superar 5")
+    @NotNull(message = "La puntuación de atención es obligatoria")
+    @Min(value = 1, message = "La puntuación debe ser al menos 1")
+    @Max(value = 5, message = "La puntuación no puede superar 5")
     private Integer puntuacionAtencion;
 
-  @Size(max = 255, message = "El comentario no puede superar los 255 caracteres")
-  @NotBlank(message = "El comentario es obligatorio")
+    @NotNull(message = "La puntuación general es obligatoria")
+    @Min(value = 1, message = "La puntuación general debe ser al menos 1")
+    @Max(value = 5, message = "La puntuación general no puede superar 5")
+    private Integer puntuacionGeneral;
+
+    @NotBlank(message = "El comentario es obligatorio")
+    @Size(max = 255, message = "El comentario no puede superar los 255 caracteres")
     private String comentario;
 
-  @Min(value = 1, message = "La puntuación general debe ser al menos 1")
-  @Max(value = 5, message = "La puntuación general no puede superar 5")
-  private Integer puntuacionGeneral;
-//No se si las puntuaciones deberian ser obligatorias, que opinan?
+
+    //constructor.
 
     public ResenaRequestDTO() {
     }
-
-
+    //getter y setter.
 
     public Long getUsuarioId() {
         return usuarioId;
