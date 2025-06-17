@@ -1,8 +1,6 @@
 package com.example.LatteList.controller;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListaDeCafeDTO;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
+import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
+import com.example.LatteList.DTOs.UsuarioDTOs.*;
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.ListaDeCafe;
@@ -93,22 +91,17 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    public UsuarioListaDeCafeDTO visualizarUsuarios(){
-        return userService.visualizarListas();
+    public List<ListaDeCafe> visualizarUsuarios(){
+        return listaDeCafeService.visualizarListas();
     }
 
-    @PutMapping("/list")
-    public void actualizarListaDeCafes(@PathVariable List<ListaDeCafe> listaDeCafes){
-        userService.actualizarListaDeCafes(listaDeCafes);
-    }
-
-    @PostMapping("/list")
-    public void agregarListaDeCafe(@PathVariable String nombreLista){
-        listaDeCafeService.agregarListaDeCafe(nombreLista);
+    @PostMapping("/list/nueva")
+    public void agregarListaDeCafe(@RequestBody UsuarioListRequestDTO dto){
+        listaDeCafeService.agregarListaDeCafe(dto);
     }
 
     @PutMapping("/list/{id}")
-    public void modificarNombreLista(@PathVariable Long id, @PathVariable String nombre){
+    public void modificarNombreLista(@PathVariable Long id, @RequestBody UsuarioListRequestDTO nombre){
         listaDeCafeService.modificarNombreLista(id, nombre);
     }
 
@@ -118,12 +111,12 @@ public class UserController {
     }
 
     @PostMapping("/list/{id}/cafe")
-    public void agregarCafeAlaLista(@PathVariable Long id, @RequestBody Cafe cafe){
+    public void agregarCafeAlaLista(@PathVariable Long id, @RequestBody CafeRequestDTO cafe){
         listaDeCafeService.agregarCafeALaLista(id, cafe);
     }
 
-    @DeleteMapping("/list/{id}/cafe")
-    public void eliminarCafeDeLista(@PathVariable Long listaId, @PathVariable Long cafeId){
+    @DeleteMapping("/list/{listaId}/cafe/{cafeId}")
+    public void eliminarCafeDeLista(@PathVariable Long listaId, @PathVariable Long cafeId) {
         listaDeCafeService.eliminarCafeDeLista(listaId, cafeId);
     }
 }

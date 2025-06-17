@@ -1,5 +1,7 @@
 package com.example.LatteList.service;
 
+import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
+import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListRequestDTO;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.model.Usuario;
@@ -11,6 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class ListaDeCafeService {
     @Autowired
@@ -19,7 +24,18 @@ public class ListaDeCafeService {
     @Autowired
     UserRepository userRepository;
 
-    public void agregarListaDeCafe(String nombreLista) {
+    public List<ListaDeCafe> visualizarListas(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Usuario usuario = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        return usuario.getListasDeCafes();
+    }
+
+
+    public void agregarListaDeCafe(UsuarioListRequestDTO dto){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -27,14 +43,14 @@ public class ListaDeCafeService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         ListaDeCafe nuevaLista = new ListaDeCafe();
-        nuevaLista.setNombre(nombreLista);
+        nuevaLista.setNombre(dto.getNombre());
         nuevaLista.setUsuario(usuario);
 
         usuario.getListasDeCafes().add(nuevaLista);
         userRepository.save(usuario);
     }
 
-    public void modificarNombreLista(Long listaId, String nuevoNombre) {
+    public void modificarNombreLista(Long listaId, UsuarioListRequestDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -48,7 +64,7 @@ public class ListaDeCafeService {
             throw new SecurityException("No tenés permiso para modificar esta lista.");
         }
 
-        lista.setNombre(nuevoNombre);
+        lista.setNombre(dto.getNombre());
         listaDeCafeRepository.save(lista);
     }
 
@@ -69,7 +85,7 @@ public class ListaDeCafeService {
         listaDeCafeRepository.delete(lista);
     }
 
-    public void agregarCafeALaLista(Long listaId, Cafe cafe) {
+    public void agregarCafeALaLista(Long listaId, CafeRequestDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -83,7 +99,17 @@ public class ListaDeCafeService {
             throw new SecurityException("No tenés permiso para modificar esta lista.");
         }
 
-        lista.cargarUnCafe(cafe);
+        // Mapear DTO a entidad Cafe
+        Cafe nuevoCafe = new Cafe();
+        nuevoCafe.setNombre(dto.getNombre());
+        nuevoCafe.setDireccion(dto.getDireccion());
+        nuevoCafe.setCostoPromedio(dto.getCostoPromedio());
+        nuevoCafe.setLogo(dto.getLogo());
+        nuevoCafe.setInstagramURL(dto.getInstagramURL());
+        nuevoCafe.setEtiquetas(dto.getEtiquetas());
+        nuevoCafe.setDueño(usuario);
+
+        lista.cargarUnCafe(nuevoCafe);
         listaDeCafeRepository.save(lista);
     }
 
