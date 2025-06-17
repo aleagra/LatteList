@@ -35,10 +35,8 @@ public class AuthController {
                             authRequest.getPassword()
                     )
             );
-            // 1) Guarda en el contexto de seguridad del hilo
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 2) Crea la sesión y almacena el SecurityContext en ella
             HttpSession session = request.getSession(true);
             session.setAttribute(
                     HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
