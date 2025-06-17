@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @PutMapping
-    public UsuarioDetailDTO modificar(
+    public ResponseEntity<Map<String, String>> modificar(
             @Valid @RequestBody UsuarioRequestDTO req
     ) {
         return userService.modificarMiUsuario(req);
@@ -56,8 +57,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Long id) {
-        userService.eliminarUsuario(id);
+    public ResponseEntity<Map<String, String>> eliminar(@PathVariable Long id) {
+        return userService.eliminarUsuario(id);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -83,8 +84,8 @@ public class UserController {
 
     @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminarCuenta() {
-        userService.eliminarCuenta();
+    public ResponseEntity<Map<String, String>> eliminarCuenta() {
+        return userService.eliminarCuenta();
     }
 
     @GetMapping("/list")
@@ -93,27 +94,27 @@ public class UserController {
     }
 
     @PostMapping("/list/nueva")
-    public void agregarListaDeCafe(@RequestBody UsuarioListRequestDTO dto){
-        listaDeCafeService.agregarListaDeCafe(dto);
+    public ResponseEntity<Map<String, String>> agregarListaDeCafe(@RequestBody UsuarioListRequestDTO dto){
+        return listaDeCafeService.agregarListaDeCafe(dto);
     }
 
     @PutMapping("/list/{id}")
-    public void modificarNombreLista(@PathVariable Long id, @RequestBody UsuarioListRequestDTO nombre){
-        listaDeCafeService.modificarNombreLista(id, nombre);
+    public ResponseEntity<Map<String, String>> modificarNombreLista(@PathVariable Long id, @RequestBody UsuarioListRequestDTO nombre){
+        return listaDeCafeService.modificarNombreLista(id, nombre);
     }
 
     @DeleteMapping("/list/{id}")
-    public void eliminarLista(@PathVariable Long id){
-        listaDeCafeService.eliminarLista(id);
+    public ResponseEntity<Map<String, String>> eliminarLista(@PathVariable Long id){
+        return listaDeCafeService.eliminarLista(id);
     }
 
     @PostMapping("/list/{id}/cafe")
-    public void agregarCafeAlaLista(@PathVariable Long id, @RequestBody CafeRequestDTO cafe){
-        listaDeCafeService.agregarCafeALaLista(id, cafe);
+    public ResponseEntity<Map<String, String>> agregarCafeAlaLista(@PathVariable Long id, @RequestBody CafeRequestDTO cafe){
+        return listaDeCafeService.agregarCafeALaLista(id, cafe);
     }
 
     @DeleteMapping("/list/{listaId}/cafe/{cafeId}")
-    public void eliminarCafeDeLista(@PathVariable Long listaId, @PathVariable Long cafeId) {
-        listaDeCafeService.eliminarCafeDeLista(listaId, cafeId);
+    public ResponseEntity<Map<String, String>> eliminarCafeDeLista(@PathVariable Long listaId, @PathVariable Long cafeId) {
+        return listaDeCafeService.eliminarCafeDeLista(listaId, cafeId);
     }
 }
