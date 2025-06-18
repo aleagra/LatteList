@@ -1,9 +1,6 @@
 package com.example.LatteList.controller;
-import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.*;
 import com.example.LatteList.Enums.TipoDeUsuario;
-import com.example.LatteList.model.ListaDeCafe;
-import com.example.LatteList.service.ListaDeCafeService;
 import com.example.LatteList.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +17,8 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @Autowired
-    ListaDeCafeService listaDeCafeService;
-
-    public UserController(UserService userService, ListaDeCafeService listaDeCafeService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.listaDeCafeService = listaDeCafeService;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -88,33 +81,7 @@ public class UserController {
         return userService.eliminarCuenta();
     }
 
-    @GetMapping("/list")
-    public List<ListaDeCafe> visualizarUsuarios(){
-        return listaDeCafeService.visualizarListas();
-    }
 
-    @PostMapping("/list/nueva")
-    public ResponseEntity<Map<String, String>> agregarListaDeCafe(@RequestBody UsuarioListRequestDTO dto){
-        return listaDeCafeService.agregarListaDeCafe(dto);
-    }
 
-    @PutMapping("/list/{id}")
-    public ResponseEntity<Map<String, String>> modificarNombreLista(@PathVariable Long id, @RequestBody UsuarioListRequestDTO nombre){
-        return listaDeCafeService.modificarNombreLista(id, nombre);
-    }
 
-    @DeleteMapping("/list/{id}")
-    public ResponseEntity<Map<String, String>> eliminarLista(@PathVariable Long id){
-        return listaDeCafeService.eliminarLista(id);
-    }
-
-    @PostMapping("/list/{id}/cafe")
-    public ResponseEntity<Map<String, String>> agregarCafeAlaLista(@PathVariable Long id, @RequestBody CafeRequestDTO cafe){
-        return listaDeCafeService.agregarCafeALaLista(id, cafe);
-    }
-
-    @DeleteMapping("/list/{listaId}/cafe/{cafeId}")
-    public ResponseEntity<Map<String, String>> eliminarCafeDeLista(@PathVariable Long listaId, @PathVariable Long cafeId) {
-        return listaDeCafeService.eliminarCafeDeLista(listaId, cafeId);
-    }
 }

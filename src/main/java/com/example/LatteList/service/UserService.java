@@ -3,13 +3,13 @@ import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
 import com.example.LatteList.Enums.TipoDeUsuario;
+import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +45,11 @@ public class UserService implements UserDetailsService {
         u.setPassword(passwordEncoder.encode(r.getPassword()));
         u.setTipoDeUsuario(r.getTipoDeUsuario());
 
+        ListaDeCafe favoritos = new ListaDeCafe();
+        favoritos.setNombre("Favoritos");
+        favoritos.setUsuario(u);
+        u.getListasDeCafes().add(favoritos);
+
         Usuario guardado = userRepository.save(u);
 
         return new UsuarioDetailDTO(
@@ -57,6 +61,12 @@ public class UserService implements UserDetailsService {
         );
     }
 
+    public Usuario getUsuarioAutenticado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+    }
+
     public List<UsuarioListDTO> listarUsuarios() {
         return userRepository.findAll().stream()
                 .map(u -> new UsuarioListDTO(u.getId(), u.getNombre(), u.getApellido(), u.getEmail(), u.getTipoDeUsuario()))
@@ -64,11 +74,7 @@ public class UserService implements UserDetailsService {
     }
 
     public ResponseEntity<Map<String, String>> modificarMiUsuario(UsuarioRequestDTO req) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-
-        Usuario u = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+        Usuario u = getUsuarioAutenticado();
 
         u.setNombre(req.getNombre());
         u.setApellido(req.getApellido());
@@ -98,13 +104,8 @@ public class UserService implements UserDetailsService {
     }
 
     public ResponseEntity<Map<String, String>> eliminarCuenta() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-
-        Usuario usuario = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-
-        userRepository.delete(usuario);
+        Usuario u = getUsuarioAutenticado();
+        userRepository.delete(u);
 
         SecurityContextHolder.clearContext();
 
@@ -173,7 +174,6 @@ public class UserService implements UserDetailsService {
         List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + usuario.getTipoDeUsuario())
         );
-        System.out.println(authorities);
         return new org.springframework.security.core.userdetails.User(
                 usuario.getEmail(),
                 usuario.getPassword(),
