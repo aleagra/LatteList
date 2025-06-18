@@ -34,9 +34,10 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/reseñas/**", "/cafes/**", "/listas/**", "/auth/**").permitAll()
+                        .requestMatchers("/reseñas/**", "/cafes/**", "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
                         .requestMatchers("/usuarios/**").authenticated()
+                        .requestMatchers("/listas/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())
