@@ -19,29 +19,27 @@ public class CafeController {
     @Autowired
     private CafeService service;
 
-    @PreAuthorize("hasRole('DUENIO')")
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);
         return ResponseEntity.ok(cafeCreado);
     }
 
-
     @PreAuthorize("hasRole('DUENIO')")
-    @PutMapping("id/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<CafeDetailDTO> modificarCafe(@RequestBody @Valid CafeRequestDTO datosNuevos, @PathVariable Long id){
         CafeDetailDTO cafe = service.modificarCafe(id, datosNuevos);
         return ResponseEntity.ok(cafe);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
-    @DeleteMapping("/id/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
         service.eliminarCafe(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CafeDetailDTO> getById(@PathVariable Long id){
         CafeDetailDTO cafe = service.buscarPorId(id);
         return ResponseEntity.ok(cafe);
@@ -60,20 +58,20 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
-    @GetMapping("/aleatorio")
+    @GetMapping("/random")
     public ResponseEntity<CafeDetailDTO> getRandomCafe() {
         CafeDetailDTO cafe = service.obtenerCafeAleatorio();
         return ResponseEntity.ok(cafe);
     }
 
-    @GetMapping("/costoPromedio/{costoPromedio}")
+    @GetMapping("/costo/{costoPromedio}")
     public ResponseEntity<List<CafeListDTO>> getAllByCostoPromedio(@RequestParam String costoPromedio){
         List<CafeListDTO> cafes = service.filtrarPorCostoPromedio(costoPromedio);
         return ResponseEntity.ok(cafes);
       }
 
 
-    @GetMapping("/etiquetas/{etiqueta}")
+    @GetMapping("/etiqueta/{etiqueta}")
     public ResponseEntity<List<CafeListDTO>> getAllByEtiquetas(@RequestParam String etiqueta){
         List<CafeListDTO> cafes = service.filtrarPorEtiqueta(etiqueta);
         return ResponseEntity.ok(cafes);

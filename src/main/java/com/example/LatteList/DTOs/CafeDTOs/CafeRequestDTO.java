@@ -45,7 +45,6 @@ public class CafeRequestDTO {
     @Size(min = 1, message = "Debe tener al menos una etiqueta.")
     private Set<Etiquetas> etiquetas = new HashSet<Etiquetas>();
 
-
     public @NotBlank(message = "El nombre es obligatorio.") @Size(min = 3, max = 20, message = "El nombre debe contener entre 3 a 20 caracteres") String getNombre() {
         return nombre;
     }

@@ -7,7 +7,6 @@ import com.example.LatteList.exception.CafeNotFoundException;
 import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.Enums.TipoDeUsuario;
-import com.example.LatteList.exception.DuenioNoExistenteExeption;
 import com.example.LatteList.exception.AccessDeniedException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
@@ -16,8 +15,6 @@ import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -31,14 +28,21 @@ public class CafeService {
     private CafeRepository repo;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
+
+    public CafeService(CafeRepository repo, UserRepository userRepository, UserService userService) {
+        this.repo = repo;
+        this.userRepository = userRepository;
+        this.userService = userService;
+    }
 
     @Transactional
     public CafeDetailDTO crearCafe(CafeRequestDTO cafeRe){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        Usuario actual = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-
+        Usuario u = userService.getUsuarioAutenticado();
+        if (!u.getTipoDeUsuario().equals(TipoDeUsuario.DUENIO)) {
+            throw new AccessDeniedException("Solo los usuarios de tipo duenio pueden crear cafés.");
+        }
         Cafe cafe = new Cafe();
         cafe.setNombre(cafeRe.getNombre());
         cafe.setDireccion(cafeRe.getDireccion());
@@ -46,23 +50,21 @@ public class CafeService {
         cafe.setCostoPromedio(cafeRe.getCostoPromedio());
         cafe.setLogo(cafeRe.getLogo());
         cafe.setInstagramURL(cafeRe.getInstagramURL());
-        cafe.setDuenio(actual);
+        cafe.setDuenio(u);
+        repo.save(cafe);
 
-    repo.save(cafe);
     return toDetailDTO(cafe);
     }
 
     @Transactional
-    public CafeDetailDTO modificarCafe(Long id, CafeRequestDTO datosNuevos){
+    public CafeDetailDTO modificarCafe(Long id, CafeRequestDTO datosNuevos) {
         Cafe existente = buscarPorIdAux(id);
+        Usuario u = userService.getUsuarioAutenticado();
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        Usuario actual = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+        if (!existente.getDuenio().getId().equals(u.getId())) {
+            throw new AccessDeniedException("No puedes modificar un café que no te pertenece.");
+        }
 
-
-        existente.setDuenio(actual);
         existente.setInstagramURL(datosNuevos.getInstagramURL());
         existente.setDireccion(datosNuevos.getDireccion());
         existente.setLogo(datosNuevos.getLogo());
@@ -76,19 +78,15 @@ public class CafeService {
 
     public CafeDetailDTO buscarPorId(Long id){
         Cafe cafe = buscarPorIdAux(id);
-
         return toDetailDTO(cafe);
     }
 
     @Transactional
     public void eliminarCafe(Long id) {
         Cafe cafe = buscarPorIdAux(id);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        Usuario actual = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-        if (actual.getTipoDeUsuario() != TipoDeUsuario.ADMIN &&
-                !cafe.getDuenio().getId().equals(actual.getId())) {
+        Usuario u = userService.getUsuarioAutenticado();
+        if (u.getTipoDeUsuario() != TipoDeUsuario.ADMIN &&
+                !cafe.getDuenio().getId().equals(u.getId())) {
             throw new AccessDeniedException("No tenes permiso para eliminar este cafe");
         }
         repo.deleteById(id);
@@ -97,11 +95,7 @@ public class CafeService {
     //------------------------FILTROS Y DEMAS--------------------------------------------------------------------------------------
 
     public List<CafeListDTO> filtrarPorDuenio(String nombre, String apellido){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        Usuario actual = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-
+        Usuario u = userService.getUsuarioAutenticado();
         String nombreLimpio = nombre.trim();
         String apellidoLimpio = apellido.trim();
         List<Usuario> usuarios = userRepository.findByNombreAndApellido(nombre, apellido);
@@ -197,7 +191,6 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
                  .findFirst();
 }
 
-    //con esto me evito usar el try-catch
     private Optional<CostoPromedio> validarCostoPromedio(String costo) {
         return Arrays.stream(CostoPromedio.values())
                 .filter(c -> c.name().equalsIgnoreCase(costo.trim()))
