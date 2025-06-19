@@ -17,19 +17,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/resenas")
 public class ResenaController {
-   /* @Autowired
+    @Autowired
     private ResenaService resenaService;
 
     //solo clinetes suben resenas.
     @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping
     public ResponseEntity<Resena> crearResena(@Valid @RequestBody ResenaRequestDTO dto) {
-        Resena nuevaResena = resenaService.postReserna(dto,nuevaResena.getUsuario().getEmail());
+        Resena nuevaResena = resenaService.postReserna(dto);
         return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
     }
 
 
-    @GetMapping("/cafe/{idCafe}/resenas")
+    @GetMapping("/cafe/{idCafe}")
     public ResponseEntity<?> obtenerResenasDeUnCafe(@PathVariable Long idCafe) {
         List<Resena> resenas = resenaService.getResenasPorCafe(idCafe);
         if (resenas.isEmpty()) {
@@ -68,12 +68,12 @@ public class ResenaController {
         Resena resena = resenaService.getResenaById(id); //ve si existe.
 
         // Si no es admin, validar que la reseña sea del usuario
-        if (!esAdmin && !resena.getCliente().getEmail().equals(usuarioActual)) {
+        if (!esAdmin && !resena.getUsuario().getEmail().equals(usuarioActual)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar esta reseña, no es tuya");
         }
        //si es admin borra cualquirea.
         resenaService.deleteResena(id);
         return ResponseEntity.noContent().build();
     }
-*/
+
 }
