@@ -54,4 +54,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(CafeNotFoundException.class)
+    public ResponseEntity<Map<String, String>> manejarCafeNoEncontrado(CafeNotFoundException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("error", "Café no encontrado");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ResenaNotFoundException.class)
+    public ResponseEntity<Map<String, String>> manejarResenaNoEncontrada(ResenaNotFoundException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("error", "Reseña no encontrada");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
+    }
+
 }

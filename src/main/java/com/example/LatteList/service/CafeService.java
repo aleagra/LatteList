@@ -40,9 +40,11 @@ public class CafeService {
     @Transactional
     public CafeDetailDTO crearCafe(CafeRequestDTO cafeRe){
         Usuario u = userService.getUsuarioAutenticado();
+
         if (!u.getTipoDeUsuario().equals(TipoDeUsuario.DUENIO)) {
             throw new AccessDeniedException("Solo los usuarios de tipo duenio pueden crear cafés.");
         }
+
         Cafe cafe = new Cafe();
         cafe.setNombre(cafeRe.getNombre());
         cafe.setDireccion(cafeRe.getDireccion());
