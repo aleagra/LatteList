@@ -8,6 +8,7 @@ import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.exception.AccessDeniedException;
+import com.example.LatteList.exception.EtiquetaNotFoundException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.CafeRepository;
@@ -17,9 +18,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CafeService {
@@ -48,7 +47,7 @@ public class CafeService {
         Cafe cafe = new Cafe();
         cafe.setNombre(cafeRe.getNombre());
         cafe.setDireccion(cafeRe.getDireccion());
-        cafe.setEtiquetas(cafeRe.getEtiquetas());
+        cafe.setEtiquetas(convertirEtiquetasValidas(cafeRe.getEtiquetas()));
         cafe.setCostoPromedio(cafeRe.getCostoPromedio());
         cafe.setLogo(cafeRe.getLogo());
         cafe.setInstagramURL(cafeRe.getInstagramURL());
@@ -70,7 +69,7 @@ public class CafeService {
         existente.setInstagramURL(datosNuevos.getInstagramURL());
         existente.setDireccion(datosNuevos.getDireccion());
         existente.setLogo(datosNuevos.getLogo());
-        existente.setEtiquetas(datosNuevos.getEtiquetas());
+        existente.setEtiquetas(convertirEtiquetasValidas(datosNuevos.getEtiquetas()));
         existente.setCostoPromedio(datosNuevos.getCostoPromedio());
         existente.setNombre(datosNuevos.getNombre());
 
@@ -180,23 +179,39 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
         return toDetailDTO(cafe);
     }
 
-    public Cafe buscarPorIdAux(Long id){
+    private Cafe buscarPorIdAux(Long id){
         Cafe cafe = repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
 
         return cafe;
     }
 
+
+ //--------------------------------------AUXILIARES--------------------------------------------
 private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     return Arrays.stream(Etiquetas.values())
                 .filter(c -> c.name().equalsIgnoreCase(etiqueta.trim()))
                  .findFirst();
 }
 
+//validar esto cuando modifiques o crees un cafe
     private Optional<CostoPromedio> validarCostoPromedio(String costo) {
         return Arrays.stream(CostoPromedio.values())
                 .filter(c -> c.name().equalsIgnoreCase(costo.trim()))
                 .findFirst();
+    }
+
+    //Arreglar, algo esta mal
+    private Set<Etiquetas> convertirEtiquetasValidas(Set<String> etiquetasString) {
+        Set<Etiquetas> etiquetas = new HashSet<>();
+        for (String etiqueta : etiquetasString) {
+            try {
+                etiquetas.add(Etiquetas.valueOf(etiqueta.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new EtiquetaNotFoundException("Etiqueta inválida: " + etiqueta);
+            }
+        }
+        return etiquetas;
     }
 
     private CafeDetailDTO toDetailDTO(Cafe cafe) {

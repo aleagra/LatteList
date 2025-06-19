@@ -19,6 +19,8 @@ public class CafeController {
     @Autowired
     private CafeService service;
 
+
+    //ok
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);

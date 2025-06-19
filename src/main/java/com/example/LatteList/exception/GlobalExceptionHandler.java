@@ -70,4 +70,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(EtiquetaNotFoundException.class)
+    public ResponseEntity<Map<String, String>> manejarEtiquetaInvalida(EtiquetaNotFoundException ex) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("error", "Etiqueta inválida");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+    }
+
 }
