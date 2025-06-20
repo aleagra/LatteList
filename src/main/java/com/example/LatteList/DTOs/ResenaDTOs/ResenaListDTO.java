@@ -7,23 +7,44 @@ public class ResenaListDTO {
 
         private Long id; // ede resenaaaaaaaaaa
         private Integer puntuacionGeneral;
+        private Integer puntuacionPrecio;
+        private Integer puntuacionAtencion;
         private String comentario;
         private LocalDate fecha;
         private String nombreUsuario;
 
         public ResenaListDTO() {}
 
-        public ResenaListDTO(Long id, Integer puntuacionGeneral, String comentario, LocalDate fecha, String nombreUsuario) {
-            this.id = id;
-            this.puntuacionGeneral = puntuacionGeneral;
-            this.comentario = comentario;
-            this.fecha = fecha;
-            this.nombreUsuario = nombreUsuario;
-        }
+    public ResenaListDTO(Long id, Integer puntuacionGeneral, Integer puntuacionPrecio, Integer puntuacionAtencion, String comentario, LocalDate fecha, String nombreUsuario) {
+        this.id = id;
+        this.puntuacionGeneral = puntuacionGeneral;
+        this.puntuacionPrecio = puntuacionPrecio;
+        this.puntuacionAtencion = puntuacionAtencion;
+        this.comentario = comentario;
+        this.fecha = fecha;
+        this.nombreUsuario = nombreUsuario;
+    }
 
-        // Getters y Setters
+// Getters y Setters
 
-        public Long getId() {
+
+    public Integer getPuntuacionPrecio() {
+        return puntuacionPrecio;
+    }
+
+    public void setPuntuacionPrecio(Integer puntuacionPrecio) {
+        this.puntuacionPrecio = puntuacionPrecio;
+    }
+
+    public Integer getPuntuacionAtencion() {
+        return puntuacionAtencion;
+    }
+
+    public void setPuntuacionAtencion(Integer puntuacionAtencion) {
+        this.puntuacionAtencion = puntuacionAtencion;
+    }
+
+    public Long getId() {
             return id;
         }
 

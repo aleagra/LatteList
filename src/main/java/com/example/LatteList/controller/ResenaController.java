@@ -1,5 +1,7 @@
 package com.example.LatteList.controller;
 
+import com.example.LatteList.DTOs.ResenaDTOs.ResenaDetailDTO;
+import com.example.LatteList.DTOs.ResenaDTOs.ResenaListDTO;
 import com.example.LatteList.DTOs.ResenaDTOs.ResenaRequestDTO;
 import com.example.LatteList.model.Resena;
 import com.example.LatteList.service.ResenaService;
@@ -17,61 +19,36 @@ import java.util.List;
 @RestController
 @RequestMapping("/resenas")
 public class ResenaController {
-    @Autowired
-    private ResenaService resenaService;
+    private final ResenaService resenaService;
 
-    //solo clinetes suben resenas.
-    @PreAuthorize("hasRole('CLIENTE')")
-    @PostMapping
-    public ResponseEntity<Resena> crearResena(@Valid @RequestBody ResenaRequestDTO dto) {
-        Resena nuevaResena = resenaService.postReserna(dto);
-        return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
+    public ResenaController(ResenaService resenaService) {
+        this.resenaService = resenaService;
     }
+    @PostMapping
+    public ResponseEntity<ResenaDetailDTO> crearResena(@Valid @RequestBody ResenaRequestDTO dto) {
+        ResenaDetailDTO resenaGuardada = resenaService.postReserna(dto);
+        return new ResponseEntity<>(resenaGuardada, HttpStatus.CREATED);
+    }
+
 
 
     @GetMapping("/cafe/{idCafe}")
-    public ResponseEntity<?> obtenerResenasDeUnCafe(@PathVariable Long idCafe) {
-        List<Resena> resenas = resenaService.getResenasPorCafe(idCafe);
-        if (resenas.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body("Este café aún no tiene reseñas.");
-        }
+    public ResponseEntity<List<ResenaListDTO>> obtenerResenasDeUnCafe(@PathVariable Long idCafe) {
+        List<ResenaListDTO> resenas = resenaService.getResenasPorCafe(idCafe);
         return ResponseEntity.ok(resenas);
     }
-    // CAMBIAR METODO
+
+
     @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/misresenas")
-    public ResponseEntity<List<Resena>> obtenerMisResenas() {
-        // Obtener el nombre de usuario autenticado
-        String usernameActual = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // Buscar las reseñas del cliente autenticado
-        List<Resena> resenas = resenaService.getResenasDelCliente(usernameActual);
-
+    public ResponseEntity<List<ResenaListDTO>> obtenerMisResenas() {
+        List<ResenaListDTO> resenas = resenaService.getResenasDelCliente();
         return ResponseEntity.ok(resenas);
     }
 
-    // SEPARAR EN METODO PARA USUARIO Y PARA ADMIN
- //borrar resenas. clientes las suyas. admin todas.
     @PreAuthorize("hasRole('CLIENTE') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarResena(@PathVariable Long id) {
-        //guardo para ver que rol ingreso.
-        String usuarioActual = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        //ver si es admin o cliente.
-        boolean esAdmin = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities()
-                .stream()
-                .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN"));
-
-        Resena resena = resenaService.getResenaById(id); //ve si existe.
-
-        // Si no es admin, validar que la reseña sea del usuario
-        if (!esAdmin && !resena.getUsuario().getEmail().equals(usuarioActual)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar esta reseña, no es tuya");
-        }
-       //si es admin borra cualquirea.
+    public ResponseEntity<Void> eliminarResena(@PathVariable Long id) {
         resenaService.deleteResena(id);
         return ResponseEntity.noContent().build();
     }
