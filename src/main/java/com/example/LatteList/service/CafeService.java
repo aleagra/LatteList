@@ -8,7 +8,6 @@ import com.example.LatteList.Enums.CostoPromedio;
 import com.example.LatteList.Enums.Etiquetas;
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.exception.AccessDeniedException;
-import com.example.LatteList.exception.EtiquetaNotFoundException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Usuario;
 import com.example.LatteList.repository.CafeRepository;
@@ -16,6 +15,7 @@ import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -83,16 +83,22 @@ public class CafeService {
     }
 
     @Transactional
-    public void eliminarCafe(Long id) {
+    public ResponseEntity<Map<String, String>> eliminarCafe(Long id) {
         Cafe cafe = buscarPorIdAux(id);
         Usuario u = userService.getUsuarioAutenticado();
+
         if (u.getTipoDeUsuario() != TipoDeUsuario.ADMIN &&
                 !cafe.getDuenio().getId().equals(u.getId())) {
             throw new AccessDeniedException("No tenes permiso para eliminar este cafe");
         }
-        repo.deleteById(id);
-    }
 
+        repo.delete(cafe);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "El café fue eliminado correctamente");
+
+        return ResponseEntity.ok(respuesta);
+    }
     //------------------------FILTROS Y DEMAS--------------------------------------------------------------------------------------
 
     public List<CafeListDTO> filtrarPorDuenio(String nombre, String apellido){
@@ -174,16 +180,15 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
     }
 
     public CafeDetailDTO obtenerCafeAleatorio() {
-        Cafe cafe = repo.obtenerCafeAleatorio().
-                orElseThrow(() -> new CafeNotFoundException("No hay cafes en la base de datos."));
-        return toDetailDTO(cafe);
+        Optional<Cafe> cafeOpt = repo.obtenerCafeAleatorio();
+        return cafeOpt
+                .map(this::toDetailDTO)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró ningún café"));
     }
 
-    private Cafe buscarPorIdAux(Long id){
-        Cafe cafe = repo.findById(id).
+    public Cafe buscarPorIdAux(Long id){
+        return repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
-
-        return cafe;
     }
 
 
@@ -208,7 +213,7 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
             try {
                 etiquetas.add(Etiquetas.valueOf(etiqueta.toUpperCase()));
             } catch (IllegalArgumentException e) {
-                throw new EtiquetaNotFoundException("Etiqueta inválida: " + etiqueta);
+                throw new IllegalArgumentException("Etiqueta inválida: " + etiqueta);
             }
         }
         return etiquetas;

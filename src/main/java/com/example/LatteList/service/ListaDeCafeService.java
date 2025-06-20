@@ -1,5 +1,8 @@
 package com.example.LatteList.service;
+import com.example.LatteList.DTOs.CafeDTOs.CafeSinResenasDTO;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListRequestDTO;
+import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListaCafeDTO;
+import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListaDeCafeDTO;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.model.Usuario;
@@ -25,9 +28,26 @@ public class ListaDeCafeService {
     @Autowired
     CafeRepository cafeRepository;
 
-    public List<ListaDeCafe> visualizarListas(){
+    public List<UsuarioListaCafeDTO> visualizarListasDTO() {
         Usuario usuario = userService.getUsuarioAutenticado();
-        return usuario.getListasDeCafes();
+
+        return usuario.getListasDeCafes().stream()
+                .map(lista -> new UsuarioListaCafeDTO(
+                        lista.getId(),
+                        lista.getNombre(),
+                        lista.getCafes().stream()
+                                .map(cafe -> new CafeSinResenasDTO(
+                                        cafe.getId(),
+                                        cafe.getNombre(),
+                                        cafe.getDireccion(),
+                                        cafe.getCostoPromedio(),
+                                        cafe.getLogo(),
+                                        cafe.getInstagramURL(),
+                                        cafe.getEtiquetas()
+                                ))
+                                .toList()
+                ))
+                .toList();
     }
 
     public ListaDeCafe buscarLista(Long id) {

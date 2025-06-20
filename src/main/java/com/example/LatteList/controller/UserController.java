@@ -14,6 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/usuarios")
 public class UserController {
+
     @Autowired
     UserService userService;
 
@@ -81,7 +82,8 @@ public class UserController {
         return userService.eliminarCuenta();
     }
 
-
-
-
+    @GetMapping("/perfil")
+    public ResponseEntity<UsuarioCompletoDto> obtenerPerfilCompleto() {
+        return ResponseEntity.ok(userService.getUsuarioCompleto());
+    }
 }

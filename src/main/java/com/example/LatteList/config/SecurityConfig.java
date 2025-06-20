@@ -1,5 +1,4 @@
 package com.example.LatteList.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,6 +34,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/reseñas/**", "/cafes/**", "/auth/**").permitAll()
+                        .requestMatchers("/cafes/aleatorio").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
                         .requestMatchers("/usuarios/**").authenticated()
                         .requestMatchers("/listas/**").authenticated()

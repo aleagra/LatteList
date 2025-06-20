@@ -1,66 +1,52 @@
 package com.example.LatteList.service;
-
 import com.example.LatteList.DTOs.ResenaDTOs.ResenaDetailDTO;
 import com.example.LatteList.DTOs.ResenaDTOs.ResenaListDTO;
 import com.example.LatteList.DTOs.ResenaDTOs.ResenaRequestDTO;
+import com.example.LatteList.DTOs.ResenaDTOs.ResenaUserDto;
+import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.exception.AccessDeniedException;
-import com.example.LatteList.exception.CafeNotFoundException;
 import com.example.LatteList.exception.ResenaNotFoundException;
 import com.example.LatteList.model.Cafe;
 import com.example.LatteList.model.Resena;
 import com.example.LatteList.model.Usuario;
-import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.repository.ResenaRepository;
-import com.example.LatteList.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ResenaService {
 
-    private final CafeRepository cafeRepository;
-    private final ResenaRepository resenaRepository;
-    private final UserRepository userRepository;
-
-    public ResenaService(CafeRepository cafeRepository, ResenaRepository resenaRepository, UserRepository userRepository) {
-        this.cafeRepository = cafeRepository;
-        this.resenaRepository = resenaRepository;
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private ResenaRepository resenaRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CafeService cafeService;
 
 
     public ResenaDetailDTO postReserna(ResenaRequestDTO dto) {
-        //1 obtengo el usuario que esta ingresando.
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario usuario = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado."));
+        Usuario u = userService.getUsuarioAutenticado();
 
-        //2 busco el cafe.
-        Cafe cafe = cafeRepository.findById(dto.getCafeId())
-                .orElseThrow(() -> new CafeNotFoundException("El café no existe."));
-        //3 creo la resenaaaaa
+        Cafe c = cafeService.buscarPorIdAux(dto.getCafeId());
         Resena resena = new Resena();
-
         resena.setPuntuacionPrecio(dto.getPuntuacionPrecio());
         resena.setPuntuacionAtencion(dto.getPuntuacionAtencion());
         resena.setComentario(dto.getComentario());
         resena.setPuntuacionGeneral(dto.getPuntuacionGeneral());
-        resena.setUsuario(usuario);
-        resena.setCafe(cafe);
+        resena.setUsuario(u);
+        resena.setCafe(c);
         resenaRepository.save(resena);
-
         return toDetailDTO(resena);
     }
 
-
     public List<ResenaListDTO> getResenasPorCafe(Long cafeId) {
-        Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new CafeNotFoundException("No se encontró el café con id: " + cafeId));
+        Cafe cafe = cafeService.buscarPorIdAux(cafeId);
 
         return resenaRepository.findByCafe(cafe)
                 .stream()
@@ -68,46 +54,30 @@ public class ResenaService {
                 .toList();
     }
 
-
-    public List<ResenaListDTO> getResenasDelCliente() {
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario usuario = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado."));
-
-        return resenaRepository.findByUsuario(usuario)
+    public List<ResenaUserDto> getResenasDelCliente() {
+        Usuario u = userService.getUsuarioAutenticado();
+        return resenaRepository.findByUsuario(u)
                 .stream()
-                .map(this::toDTO)
+                .map(this::resenaUser)
                 .toList();
     }
 
-
-    public Resena getResenaById(Long id) {
-        return resenaRepository.findById(id)
+    public ResponseEntity<Map<String, String>> deleteResena(Long id) {
+        Usuario usuarioAutenticado = userService.getUsuarioAutenticado();
+        boolean esAdmin = usuarioAutenticado.getTipoDeUsuario().equals(TipoDeUsuario.ADMIN);
+        Resena resena =  resenaRepository.findById(id)
                 .orElseThrow(() -> new ResenaNotFoundException("Reseña no encontrada con ID: " + id));
-    }
-
-    public void deleteResena(Long id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        boolean esAdmin = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities()
-                .stream()
-                .anyMatch(rol -> rol.getAuthority().equals("ROLE_ADMIN"));
-
-
-        Resena resena = resenaRepository.findById(id)
-                .orElseThrow(() -> new ResenaNotFoundException("No se encontró la reseña con ID: " + id));
-
-        // Si no es admin, validar que la reseña le pertenezca
-        if (!esAdmin && !resena.getUsuario().getEmail().equals(email)) {
+        if (!esAdmin && !resena.getUsuario().getId().equals(usuarioAutenticado.getId())) {
             throw new AccessDeniedException("No puedes eliminar esta reseña, no es tuya.");
         }
+        resenaRepository.delete(resena);
 
-        resenaRepository.deleteById(id);
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "La reseña fue eliminada correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    //metodos extra
     public ResenaDetailDTO toDetailDTO(Resena resena) {
         ResenaDetailDTO dto = new ResenaDetailDTO();
 
@@ -120,7 +90,7 @@ public class ResenaService {
 
         if (resena.getUsuario() != null) {
             dto.setUsuarioId(resena.getUsuario().getId());
-            dto.setUsuarioNombre(resena.getUsuario().getNombre());  // o username si querés
+            dto.setUsuarioNombre(resena.getUsuario().getNombre());
             dto.setEmail(resena.getUsuario().getEmail());
         }
 
@@ -132,9 +102,9 @@ public class ResenaService {
         return dto;
     }
 
-
     private ResenaListDTO toDTO(Resena resena) {
         ResenaListDTO dto = new ResenaListDTO();
+        dto.setId(resena.getId());
         dto.setComentario(resena.getComentario());
         dto.setPuntuacionPrecio(resena.getPuntuacionPrecio());
         dto.setPuntuacionAtencion(resena.getPuntuacionAtencion());
@@ -142,6 +112,17 @@ public class ResenaService {
         dto.setNombreUsuario(resena.getUsuario().getNombre());
         dto.setFecha(resena.getFecha());
         return dto;
+    }
+
+    private ResenaUserDto resenaUser(Resena resena) {
+        return new ResenaUserDto(
+                resena.getId(),
+                resena.getPuntuacionGeneral(),
+                resena.getPuntuacionPrecio(),
+                resena.getPuntuacionAtencion(),
+                resena.getComentario(),
+                resena.getFecha()
+        );
     }
 
 

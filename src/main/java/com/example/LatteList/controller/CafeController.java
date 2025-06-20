@@ -2,7 +2,6 @@ package com.example.LatteList.controller;
 import com.example.LatteList.DTOs.CafeDTOs.CafeDetailDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeListDTO;
 import com.example.LatteList.DTOs.CafeDTOs.CafeRequestDTO;
-import com.example.LatteList.model.Usuario;
 import com.example.LatteList.service.CafeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/cafes")
@@ -19,8 +19,6 @@ public class CafeController {
     @Autowired
     private CafeService service;
 
-
-    //ok
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);
@@ -36,9 +34,8 @@ public class CafeController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
-        service.eliminarCafe(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, String>> deleteCafe(@PathVariable Long id) {
+        return service.eliminarCafe(id);
     }
 
     @GetMapping("/{id}")
@@ -60,7 +57,7 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
-    @GetMapping("/random")
+    @GetMapping("/aleatorio")
     public ResponseEntity<CafeDetailDTO> getRandomCafe() {
         CafeDetailDTO cafe = service.obtenerCafeAleatorio();
         return ResponseEntity.ok(cafe);
@@ -71,7 +68,6 @@ public class CafeController {
         List<CafeListDTO> cafes = service.filtrarPorCostoPromedio(costoPromedio);
         return ResponseEntity.ok(cafes);
       }
-
 
     @GetMapping("/etiqueta/{etiqueta}")
     public ResponseEntity<List<CafeListDTO>> getAllByEtiquetas(@RequestParam String etiqueta){
@@ -90,7 +86,5 @@ public class CafeController {
         List<CafeListDTO> cafes = service.filtrarPorNombre(nombre);
         return ResponseEntity.ok(cafes);
     }
-
-
 
 }

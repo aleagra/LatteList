@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public class ResenaListDTO {
 
-        private Long id; // ede resenaaaaaaaaaa
+        private Long id;
         private Integer puntuacionGeneral;
         private Integer puntuacionPrecio;
         private Integer puntuacionAtencion;

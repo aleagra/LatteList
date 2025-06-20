@@ -46,7 +46,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", "Acceso denegado");
         body.put("message", ex.getMessage());
@@ -65,7 +64,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResenaNotFoundException.class)
     public ResponseEntity<Map<String, String>> manejarResenaNoEncontrada(ResenaNotFoundException ex) {
         Map<String, String> respuesta = new HashMap<>();
-        respuesta.put("error", "Reseña no encontrada");
+        respuesta.put("error", "Resena invalida");
         respuesta.put("mensaje", ex.getMessage());
         return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
     }

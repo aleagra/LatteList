@@ -1,5 +1,4 @@
 package com.example.LatteList.model;
-
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -38,6 +37,7 @@ public class Usuario implements UserDetails {
     @JsonManagedReference
     private List<ListaDeCafe> listasDeCafes = new ArrayList<>();
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resena> resenas = new ArrayList<Resena>();
 

@@ -1,10 +1,7 @@
 package com.example.LatteList.model;
-
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-
 @Entity
 @Table(name="resenas")
 public class Resena {
@@ -13,7 +10,6 @@ public class Resena {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //uso integer y no int, para q me acepte null.
     @Column(nullable = false)
     private Integer puntuacionPrecio;
 
@@ -24,29 +20,23 @@ public class Resena {
     private String comentario;
 
     @Column(nullable = false)
-    private LocalDate fecha ; //el setter automatico le pone la fecha de ahora.
+    private LocalDate fecha ;
 
     @Column(nullable = false)
     private Integer puntuacionGeneral;
 
-    //el id de usuario. seria la foreign key
+    @JsonBackReference
     @ManyToOne(optional = false)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    //foreing de cafe.
     @ManyToOne(optional = false)
     @JoinColumn(name = "cafe_id")
+    @JsonBackReference
     private Cafe cafe;
 
-    // Constructor//////////////////////////////////////////////////////////////////////////
     public Resena() {}
 
-
-    //getter y setter.//////////////////////////////////////////////////////////////////////
-
-    //este metodo para poner la fecha de ahora cuando se crea  unicamente. !
-    // asi sino se crea no queda mal cargadooooo
     @PrePersist
     protected void onCreate() {
         fecha = LocalDate.now();

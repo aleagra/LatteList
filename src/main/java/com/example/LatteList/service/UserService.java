@@ -1,7 +1,7 @@
 package com.example.LatteList.service;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioDetailDTO;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListDTO;
-import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioRequestDTO;
+import com.example.LatteList.DTOs.CafeDTOs.CafeSinResenasDTO;
+import com.example.LatteList.DTOs.ResenaDTOs.ResenaUserDto;
+import com.example.LatteList.DTOs.UsuarioDTOs.*;
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.model.Usuario;
@@ -180,5 +180,49 @@ public class UserService implements UserDetailsService {
                 authorities
         );
     }
-}
+
+    public UsuarioCompletoDto getUsuarioCompleto() {
+        Usuario u = getUsuarioAutenticado();
+
+        List<ResenaUserDto> resenas = u.getResenas().stream()
+                .map(resena -> new ResenaUserDto(
+                        resena.getId(),
+                        resena.getPuntuacionGeneral(),
+                        resena.getPuntuacionPrecio(),
+                        resena.getPuntuacionAtencion(),
+                        resena.getComentario(),
+                        resena.getFecha()
+                ))
+                .toList();
+
+        List<UsuarioListaCafeDTO> listas = u.getListasDeCafes().stream()
+                .map(lista -> new UsuarioListaCafeDTO(
+                        lista.getId(),
+                        lista.getNombre(),
+                        lista.getCafes().stream()
+                                .map(cafe -> new CafeSinResenasDTO(
+                                        cafe.getId(),
+                                        cafe.getNombre(),
+                                        cafe.getDireccion(),
+                                        cafe.getCostoPromedio(),
+                                        cafe.getLogo(),
+                                        cafe.getInstagramURL(),
+                                        cafe.getEtiquetas()
+                                ))
+                                .toList()
+                ))
+                .toList();
+
+        return new UsuarioCompletoDto(
+                u.getId(),
+                u.getNombre(),
+                u.getApellido(),
+                u.getEmail(),
+                u.getTipoDeUsuario(),
+                listas,
+                resenas
+        );
+    }
+
+    }
 

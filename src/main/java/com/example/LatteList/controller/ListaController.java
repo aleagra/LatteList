@@ -1,5 +1,6 @@
 package com.example.LatteList.controller;
 import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListRequestDTO;
+import com.example.LatteList.DTOs.UsuarioDTOs.UsuarioListaCafeDTO;
 import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.service.ListaDeCafeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,10 @@ public class ListaController {
     }
 
     @GetMapping
-    public List<ListaDeCafe> visualizarListas(){
-        return listaDeCafeService.visualizarListas();
+    public ResponseEntity<List<UsuarioListaCafeDTO>> visualizarListas() {
+        List<UsuarioListaCafeDTO> listasDTO = listaDeCafeService.visualizarListasDTO();
+        return ResponseEntity.ok(listasDTO);
     }
-
     @PostMapping("/nueva")
     public ResponseEntity<Map<String, String>> agregarListaDeCafe(@RequestBody UsuarioListRequestDTO dto){
         return listaDeCafeService.agregarListaDeCafe(dto);
