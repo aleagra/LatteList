@@ -22,7 +22,8 @@ import java.util.*;
 
 @Service
 public class CafeService {
-
+    // anda todo, despues saco los comentados y arreglo unas cositas, no tocar nada porfi, agus
+    //me falta agregar el metodo para retornar todas las etiquetas
     @Autowired
     private CafeRepository repo;
     @Autowired
@@ -138,20 +139,22 @@ public class CafeService {
     public List<CafeListDTO> filtrarPorDireccionAprox(String direccionParcial){
         String textoLimpio = direccionParcial.trim();
         List<Cafe> cafes = repo.findByDireccionContainingIgnoreCase(textoLimpio);
-    
-        if (cafes.isEmpty()) {
-       System.out.println("No se encontraron cafés con la direccion: " + direccionParcial);
-        }
+
+
            return cafes.stream()
             .map(this::toListDTO)
             .toList();
     }
 
+
     public List<CafeListDTO> filtrarPorEtiqueta(String etiquetaStr) {
     Etiquetas etiqueta = validarEtiqueta(etiquetaStr)
-                         .orElseThrow(() -> new CafeNotFoundException("Etiqueta invalidad: " + etiquetaStr));
-
+                         .orElseThrow(() -> new CafeNotFoundException("Etiqueta invalida: '"+ etiquetaStr+"' asegurese de poner solo las etiquetas disponibles "));
     List<Cafe> cafes = repo.findByEtiquetasContaining(etiqueta);
+
+    if(cafes.isEmpty()){
+        System.out.println("Aun no hay cafes que ofrezcan "+etiquetaStr);
+    }
 
     return cafes.stream()
             .map(this::toListDTO)
@@ -160,7 +163,7 @@ public class CafeService {
   
 public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
     CostoPromedio costo = validarCostoPromedio(costoStr).
-            orElseThrow(() -> new CafeNotFoundException("Costo promedio invalido: " + costoStr));
+            orElseThrow(() -> new IllegalArgumentException("Valor invalido '" + costoStr+"' asegurese de ingresar solo valores como: $, $$, $$."));
 
     List<Cafe> cafes = repo.findByCostoPromedio(costo);
 
@@ -181,6 +184,7 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
 
     public CafeDetailDTO obtenerCafeAleatorio() {
         Optional<Cafe> cafeOpt = repo.obtenerCafeAleatorio();
+
         return cafeOpt
                 .map(this::toDetailDTO)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró ningún café"));
@@ -199,14 +203,14 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
                  .findFirst();
 }
 
-//validar esto cuando modifiques o crees un cafe
+
     private Optional<CostoPromedio> validarCostoPromedio(String costo) {
         return Arrays.stream(CostoPromedio.values())
                 .filter(c -> c.name().equalsIgnoreCase(costo.trim()))
                 .findFirst();
     }
 
-    //Arreglar, algo esta mal
+    //ANDA ANDA
     private Set<Etiquetas> convertirEtiquetasValidas(Set<String> etiquetasString) {
         Set<Etiquetas> etiquetas = new HashSet<>();
         for (String etiqueta : etiquetasString) {

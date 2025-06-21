@@ -49,20 +49,25 @@ public class CafeRequestDTO {
         return nombre;
     }
 
+
+    public CafeRequestDTO() {
+    }
+
+
     public void setNombre(@NotBlank(message = "El nombre es obligatorio.") @Size(min = 3, max = 20, message = "El nombre debe contener entre 3 a 20 caracteres") String nombre) {
         this.nombre = nombre;
     }
 
     public @NotBlank(message = "La direccion es obligatoria.") @Size(min = 3, max = 30, message = "La direccion debe contener entre 3 a 30 caracteres") @Pattern(
-            regexp = "^[A-ZÁÉÍÓÚÑa-záéíóúñ]+\\s\\d+$",
-            message = "La dirección debe tener el formato: Calle seguido de la altura numérica, por ejemplo 'Lavalle 1234'."
+            regexp = "^[\\p{L}0-9\\.]+(?:\\s[\\p{L}0-9\\.]+)*\\s\\d+$",
+            message = "La dirección debe tener el formato: Calle seguido de la altura numérica, por ejemplo 'San Martín 2475' o 'Av. 9 de Julio 123'."
     ) String getDireccion() {
         return direccion;
     }
 
     public void setDireccion(@NotBlank(message = "La direccion es obligatoria.") @Size(min = 3, max = 30, message = "La direccion debe contener entre 3 a 30 caracteres") @Pattern(
-            regexp = "^[A-ZÁÉÍÓÚÑa-záéíóúñ]+\\s\\d+$",
-            message = "La dirección debe tener el formato: Calle seguido de la altura numérica, por ejemplo 'Lavalle 1234'."
+            regexp = "^[\\p{L}0-9\\.]+(?:\\s[\\p{L}0-9\\.]+)*\\s\\d+$",
+            message = "La dirección debe tener el formato: Calle seguido de la altura numérica, por ejemplo 'San Martín 2475' o 'Av. 9 de Julio 123'."
     ) String direccion) {
         this.direccion = direccion;
     }
