@@ -117,6 +117,8 @@ public class ResenaService {
     private ResenaUserDto resenaUser(Resena resena) {
         return new ResenaUserDto(
                 resena.getId(),
+                resena.getCafe().getNombre(),
+                resena.getCafe().getDireccion(),
                 resena.getPuntuacionGeneral(),
                 resena.getPuntuacionPrecio(),
                 resena.getPuntuacionAtencion(),

@@ -3,10 +3,7 @@ package com.example.LatteList.DTOs.ResenaDTOs;
 import jakarta.validation.constraints.*;
 
 public class ResenaRequestDTO {
-/*
-    @NotNull(message = "El ID del usuario es obligatorio")
-    private Long usuarioId;
-*/
+
     @NotNull(message = "El ID del café es obligatorio")
     private Long cafeId;
 

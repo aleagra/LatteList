@@ -5,7 +5,8 @@ import java.time.LocalDate;
 
 public class ResenaListDTO {
 
-        private Long id;
+        private Long id; //de resena.
+
         private Integer puntuacionGeneral;
         private Integer puntuacionPrecio;
         private Integer puntuacionAtencion;
@@ -14,19 +15,6 @@ public class ResenaListDTO {
         private String nombreUsuario;
 
         public ResenaListDTO() {}
-
-    public ResenaListDTO(Long id, Integer puntuacionGeneral, Integer puntuacionPrecio, Integer puntuacionAtencion, String comentario, LocalDate fecha, String nombreUsuario) {
-        this.id = id;
-        this.puntuacionGeneral = puntuacionGeneral;
-        this.puntuacionPrecio = puntuacionPrecio;
-        this.puntuacionAtencion = puntuacionAtencion;
-        this.comentario = comentario;
-        this.fecha = fecha;
-        this.nombreUsuario = nombreUsuario;
-    }
-
-// Getters y Setters
-
 
     public Integer getPuntuacionPrecio() {
         return puntuacionPrecio;

@@ -187,6 +187,8 @@ public class UserService implements UserDetailsService {
         List<ResenaUserDto> resenas = u.getResenas().stream()
                 .map(resena -> new ResenaUserDto(
                         resena.getId(),
+                        resena.getCafe().getNombre(),
+                        resena.getCafe().getDireccion(),
                         resena.getPuntuacionGeneral(),
                         resena.getPuntuacionPrecio(),
                         resena.getPuntuacionAtencion(),
