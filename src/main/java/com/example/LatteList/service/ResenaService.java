@@ -105,6 +105,7 @@ public class ResenaService {
     private ResenaListDTO toDTO(Resena resena) {
         ResenaListDTO dto = new ResenaListDTO();
         dto.setId(resena.getId());
+        dto.setNombreCafe(resena.getCafe().getNombre());
         dto.setComentario(resena.getComentario());
         dto.setPuntuacionPrecio(resena.getPuntuacionPrecio());
         dto.setPuntuacionAtencion(resena.getPuntuacionAtencion());

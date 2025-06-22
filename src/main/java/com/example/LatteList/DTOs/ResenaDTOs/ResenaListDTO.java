@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class ResenaListDTO {
 
         private Long id; //de resena.
-
+        private String nombreCafe;
         private Integer puntuacionGeneral;
         private Integer puntuacionPrecio;
         private Integer puntuacionAtencion;
@@ -22,6 +22,14 @@ public class ResenaListDTO {
 
     public void setPuntuacionPrecio(Integer puntuacionPrecio) {
         this.puntuacionPrecio = puntuacionPrecio;
+    }
+
+    public String getNombreCafe() {
+        return nombreCafe;
+    }
+
+    public void setNombreCafe(String nombreCafe) {
+        this.nombreCafe = nombreCafe;
     }
 
     public Integer getPuntuacionAtencion() {

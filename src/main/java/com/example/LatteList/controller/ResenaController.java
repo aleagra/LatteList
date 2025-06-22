@@ -26,7 +26,7 @@ public class ResenaController {
         this.resenaService = resenaService;
     }
 
-    @PreAuthorize("hasRole('CLIENTE') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping
     public ResponseEntity<ResenaDetailDTO> crearResena(@Valid @RequestBody ResenaRequestDTO dto) {
         ResenaDetailDTO resenaGuardada = resenaService.postReserna(dto);
