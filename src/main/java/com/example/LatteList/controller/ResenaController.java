@@ -38,7 +38,7 @@ public class ResenaController {
         List<ResenaListDTO> resenas = resenaService.getResenasPorCafe(idCafe);
         return ResponseEntity.ok(resenas);
     }
-
+    @PreAuthorize("hasRole('CLIENTE') or hasRole('ADMIN') or hasRole('DUENIO')")
     @GetMapping("/misresenas")
     public ResponseEntity<List<ResenaUserDto>> obtenerMisResenas() {
         List<ResenaUserDto> resenas = resenaService.getResenasDelCliente();
