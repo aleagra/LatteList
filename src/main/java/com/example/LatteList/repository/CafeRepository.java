@@ -17,7 +17,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
     List<Cafe> findByEtiquetasContaining(Etiquetas etiqueta);
     List<Cafe> findByDireccionContainingIgnoreCase(String direccion);
     List<Cafe> findByCostoPromedio(CostoPromedio costo);
-
+    boolean existsByDuenio(Usuario usuario);
     @Query(value = "SELECT * FROM cafes WHERE dueño_id IS NOT NULL ORDER BY RAND() LIMIT 1", nativeQuery = true)
     Optional<Cafe> obtenerCafeAleatorio();
 

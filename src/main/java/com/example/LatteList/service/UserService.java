@@ -5,6 +5,7 @@ import com.example.LatteList.DTOs.UsuarioDTOs.*;
 import com.example.LatteList.Enums.TipoDeUsuario;
 import com.example.LatteList.model.ListaDeCafe;
 import com.example.LatteList.model.Usuario;
+import com.example.LatteList.repository.CafeRepository;
 import com.example.LatteList.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -27,10 +28,13 @@ public class UserService implements UserDetailsService {
     @Autowired
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private final CafeRepository cafeRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CafeRepository cafeRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cafeRepository = cafeRepository;
     }
 
     public UsuarioDetailDTO crearUsuario(UsuarioRequestDTO r) {
@@ -91,11 +95,14 @@ public class UserService implements UserDetailsService {
     }
 
     public ResponseEntity<Map<String, String>> eliminarUsuario(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException("No existe usuario con ID " + id);
+        Usuario usuario = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No existe usuario con ID " + id));
+
+        if (cafeRepository.existsByDuenio(usuario)) {
+            throw new IllegalStateException("No se puede eliminar el usuario porque es dueño de uno o más cafés.");
         }
 
-        userRepository.deleteById(id);
+        userRepository.delete(usuario);
 
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("mensaje", "Usuario con ID " + id + " eliminado correctamente");
@@ -105,8 +112,12 @@ public class UserService implements UserDetailsService {
 
     public ResponseEntity<Map<String, String>> eliminarCuenta() {
         Usuario u = getUsuarioAutenticado();
-        userRepository.delete(u);
 
+        if (cafeRepository.existsByDuenio(u)) {
+            throw new IllegalStateException("No podés eliminar tu cuenta porque sos dueño de uno o más cafés.");
+        }
+
+        userRepository.delete(u);
         SecurityContextHolder.clearContext();
 
         Map<String, String> respuesta = new HashMap<>();
@@ -115,7 +126,7 @@ public class UserService implements UserDetailsService {
         return ResponseEntity.ok(respuesta);
     }
 
-    public UsuarioDetailDTO buscarPorId(Long id) {
+        public UsuarioDetailDTO buscarPorId(Long id) {
         Usuario u = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID " + id));
         return new UsuarioDetailDTO(
