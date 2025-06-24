@@ -16,13 +16,12 @@ import java.util.Map;
 @RequestMapping("/cafes")
 public class CafeController {
 
-    // anda todo, despues saco los comentados y arreglo unas cositas, no tocar nada porfi, agus
-    //me falta agregar el metodo para retornar todas las etiquetas
+
     @Autowired
     private CafeService service;
 
 
-    //ok
+    @PreAuthorize("hasRole('DUENIO')")
     @PostMapping
     public ResponseEntity<CafeDetailDTO> createCafe(@RequestBody @Valid CafeRequestDTO cafe){
         CafeDetailDTO cafeCreado = service.crearCafe(cafe);
@@ -30,7 +29,6 @@ public class CafeController {
     }
 
 
-    //ok
     @PreAuthorize("hasRole('DUENIO')")
     @PutMapping("/{id}")
     public ResponseEntity<CafeDetailDTO> modificarCafe(@RequestBody @Valid CafeRequestDTO datosNuevos, @PathVariable Long id){
@@ -38,7 +36,7 @@ public class CafeController {
         return ResponseEntity.ok(cafe);
     }
 
-    //ok
+
     @PreAuthorize("hasRole('ADMIN') or hasRole('DUENIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteCafe(@PathVariable Long id) {
@@ -46,22 +44,21 @@ public class CafeController {
     }
 
 
-    //ok
+
     @GetMapping("/{id}")
     public ResponseEntity<CafeDetailDTO> getById(@PathVariable Long id){
         CafeDetailDTO cafe = service.buscarPorId(id);
         return ResponseEntity.ok(cafe);
     }
 
-    //ok
+
     @GetMapping
     public ResponseEntity<List<CafeListDTO>> getAll(){
         List<CafeListDTO> cafes = service.listarCafes();
         return ResponseEntity.ok(cafes);
     }
 
-    //estaban con requestParam y no funcionaba
-// ok
+
        @GetMapping("/duenio/{nombre}/{apellido}")
     public ResponseEntity<List<CafeListDTO>> getCafesPorDuenio(@PathVariable String nombre, @PathVariable String apellido) {
 
@@ -69,15 +66,14 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
-//andaa
+
     @GetMapping("/aleatorio")
     public ResponseEntity<CafeDetailDTO> getRandomCafe() {
         CafeDetailDTO cafe = service.obtenerCafeAleatorio();
         return ResponseEntity.ok(cafe);
     }
 
-    //va con path variabl, no cambiar
-    //ok
+
     @GetMapping("/costo/{costoPromedio}")
     public ResponseEntity<List<CafeListDTO>> getAllByCostoPromedio(@PathVariable String costoPromedio){
         List<CafeListDTO> cafes = service.filtrarPorCostoPromedio(costoPromedio);
@@ -85,15 +81,22 @@ public class CafeController {
       }
 
 
-//ok
+
     @GetMapping("/etiqueta/{etiqueta}")
     public ResponseEntity<List<CafeListDTO>> getAllByEtiquetas(@PathVariable String etiqueta){
         List<CafeListDTO> cafes = service.filtrarPorEtiqueta(etiqueta);
         return ResponseEntity.ok(cafes);
     }
 
+    @GetMapping("/etiquetas")
+    public ResponseEntity<List<String>> obtenerEtiquetasPosibles() {
+        List<String> etiquetas = service.verTodasLasEtiquetas();
+        return ResponseEntity.ok(etiquetas);
+    }
 
-//ok
+
+
+
    @GetMapping("/direccion/{direccion}")
    public ResponseEntity<?> getAllByDireccion(@PathVariable  String direccion){
        List<CafeListDTO> cafes = service.filtrarPorDireccionAprox(direccion);
@@ -105,7 +108,7 @@ public class CafeController {
        return ResponseEntity.ok(cafes);
    }
 
-   //ok
+
     @GetMapping("/nombre/{nombre}")
     public ResponseEntity<?> getAllByName(@PathVariable  String nombre){
         List<CafeListDTO> cafes = service.filtrarPorNombre(nombre);

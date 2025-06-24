@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CafeService {
@@ -106,7 +107,7 @@ public class CafeService {
         Usuario u = userService.getUsuarioAutenticado();
         String nombreLimpio = nombre.trim();
         String apellidoLimpio = apellido.trim();
-        List<Usuario> usuarios = userRepository.findByNombreAndApellido(nombre, apellido);
+        List<Usuario> usuarios = userRepository.findByNombreAndApellido(nombreLimpio, apellidoLimpio);
 
         if(usuarios.isEmpty()){
             throw new EntityNotFoundException("No existe ningun usuario de nombre:"+nombre+" "+apellido);
@@ -115,7 +116,7 @@ public class CafeService {
         List<Cafe> cafes = repo.findByDuenioIn(usuarios);
 
         if (cafes.isEmpty()) {
-            System.out.println("No se encontraron cafes del usuario/s con nombre: " +nombre+" "+apellido);
+            throw new EntityNotFoundException("No se encontraron cafes del usuario/s con nombre: " +nombre+" "+apellido);
         }
 
         return cafes.stream()
@@ -168,7 +169,7 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
     List<Cafe> cafes = repo.findByCostoPromedio(costo);
 
     if (cafes.isEmpty()) {
-        System.out.println("No se encontraron cafes con ese costo promedio: " + costo);
+        throw new CafeNotFoundException("No se encontraron cafes con ese costo promedio: " + costo);
     }
 
     return cafes.stream()
@@ -187,17 +188,27 @@ public List<CafeListDTO> filtrarPorCostoPromedio(String costoStr) {
 
         return cafeOpt
                 .map(this::toDetailDTO)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontró ningún café"));
+                .orElseThrow(() -> new CafeNotFoundException("No se encontró ningún café"));
     }
+
+    public List<String> verTodasLasEtiquetas() {
+        return Arrays.stream(Etiquetas.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
+    }
+
+
+
+ //--------------------------------------AUXILIARES--------------------------------------------
+
+
 
     public Cafe buscarPorIdAux(Long id){
         return repo.findById(id).
                 orElseThrow(() -> new CafeNotFoundException("El cafe con id "+id+" no existe"));
     }
 
-
- //--------------------------------------AUXILIARES--------------------------------------------
-private Optional<Etiquetas> validarEtiqueta(String etiqueta){
+    private Optional<Etiquetas> validarEtiqueta(String etiqueta){
     return Arrays.stream(Etiquetas.values())
                 .filter(c -> c.name().equalsIgnoreCase(etiqueta.trim()))
                  .findFirst();
@@ -210,7 +221,7 @@ private Optional<Etiquetas> validarEtiqueta(String etiqueta){
                 .findFirst();
     }
 
-    //ANDA ANDA
+
     private Set<Etiquetas> convertirEtiquetasValidas(Set<String> etiquetasString) {
         Set<Etiquetas> etiquetas = new HashSet<>();
         for (String etiqueta : etiquetasString) {
